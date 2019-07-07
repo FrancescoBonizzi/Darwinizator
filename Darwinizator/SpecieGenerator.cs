@@ -6,11 +6,15 @@ namespace Darwinizator
 {
     public class SpecieGenerator
     {
-        public List<Animal> InitializePopulation(
+        private static Random _random = new Random();
+
+        public Dictionary<Specie, List<Animal>> InitializePopulation(
             int biodiversity,
-            int populationPerSpecie)
+            int populationPerSpecie,
+            int xDimension,
+            int yDimension)
         {
-            var population = new List<Animal>();
+            var population = new Dictionary<Specie, List<Animal>>();
 
             var speciesNames = new List<string>();
             for (int s = 0; s < biodiversity; ++s)
@@ -18,20 +22,27 @@ namespace Darwinizator
                 speciesNames.Add(GenerateName());
             }
 
-            foreach (var specie in speciesNames)
+            foreach (var specieName in speciesNames)
             {
+                var specie = new Specie() { Name = specieName };
+                var animals = new List<Animal>();
                 for (int p = 0; p < populationPerSpecie; ++p)
                 {
-                    population.Add(new Animal()
-                    {
-                        Gender = p % 2 == 0 ? Gender.Male : Gender.Female,
-                        Specie = specie,
-                        Lifetime = 100,
-                        MovementSpeed = 5,
-                        SocialIstinctToOtherSpecies = SocialIstinctToOtherSpecies.Aggressive,
-                        SocialIstinctToSameSpecies = SocialIstinctToSameSpecies.Groupful
-                    });
+                    animals.Add(
+                        new Animal()
+                        {
+                            Gender = p % 2 == 0 ? Gender.Male : Gender.Female,
+                            Specie = specie,
+                            Lifetime = 100,
+                            MovementSpeed = 5,
+                            SocialIstinctToOtherSpecies = SocialIstinctToOtherSpecies.Aggressive,
+                            PosX = _random.Next(0, xDimension),
+                            PosY = _random.Next(0, yDimension),
+                            // SocialIstinctToSameSpecies = SocialIstinctToSameSpecies.Groupful
+                        });
                 }
+
+                population.Add(specie, animals);
             }
 
             return population;
