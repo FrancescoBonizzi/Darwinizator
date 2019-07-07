@@ -28,9 +28,9 @@ namespace Darwinizator
                 var specie = new Specie()
                 {
                     Name = specieName,
-                    SocialIstinctToOtherSpecies = SocialIstinctToOtherSpecies.Defensive //_random.Next() >= 0.7 ? SocialIstinctToOtherSpecies.Aggressive : SocialIstinctToOtherSpecies.Defensive,
+                    SocialIstinctToOtherSpecies = SocialIstinctToOtherSpecies.Aggressive, //_random.Next() >= 0.7 ? SocialIstinctToOtherSpecies.Aggressive : SocialIstinctToOtherSpecies.Defensive,
                     MovementSpeed = 30,
-                    SeeDistance = 8,
+                    SeeDistance = 80,
                     Lifetime = 50,
                     Color = _colorsProvider.GetNextColor()
                 };

@@ -23,10 +23,15 @@ namespace Darwinizator
 
         internal int Distance(Animal a, Animal b)
         {
+            return Distance(a.PosX, a.PosY, b.PosX, b.PosY);
+        }
+
+        internal int Distance(float aPosX, float aPosY, float bPosX, float bPosY)
+        {
             return Convert.ToInt32(
                 Math.Sqrt(
-                    Math.Pow(a.PosX - b.PosX, 2)
-                    + Math.Pow(a.PosY - b.PosY, 2)));
+                    Math.Pow(aPosX - bPosX, 2)
+                    + Math.Pow(aPosY - bPosY, 2)));
         }
 
         internal bool NeedsToReproduce(Animal animal)
@@ -232,7 +237,7 @@ namespace Darwinizator
                     if (a == animal)
                         continue;
 
-                    if (a.PosX == newPosX && a.PosY == newPosY)
+                    if (Distance(a.PosX, a.PosY, newPosX, newPosY) <= 0.5f)
                         return false;
                 }
             }
@@ -250,7 +255,7 @@ namespace Darwinizator
 
                 foreach (var a in s.Value)
                 {
-                    if (Distance(animal, a) <= 2)
+                    if (Distance(animal, a) <= 1)
                     {
                         return a;
                     }
