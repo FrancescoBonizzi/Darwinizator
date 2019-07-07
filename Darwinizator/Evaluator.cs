@@ -9,6 +9,7 @@ namespace Darwinizator
         private readonly Dictionary<Specie, List<Animal>> _population;
         private readonly int _worldX;
         private readonly int _worldY;
+        private static Random _random = new Random();
 
         public Evaluator(
             Dictionary<Specie, List<Animal>> population,
@@ -20,9 +21,9 @@ namespace Darwinizator
             _worldY = worldY;
         }
 
-        internal int QuadraticDistance(Animal a, Animal b)
+        internal int Distance(Animal a, Animal b)
         {
-            return Convert.ToInt32(Math.Pow(a.PosX - b.PosX, 2) + Math.Pow(a.PosY - b.PosY, 2));
+            return Convert.ToInt32(Math.Sqrt(Math.Pow(a.PosX - b.PosX, 2) + Math.Pow(a.PosY - b.PosY, 2)));
         }
 
         internal bool NeedsToReproduce(Animal animal)
@@ -47,7 +48,7 @@ namespace Darwinizator
 
                 foreach (var a in s.Value)
                 {
-                    if (QuadraticDistance(a, animal) <= animal.Specie.SeeDistance)
+                    if (Distance(a, animal) <= animal.Specie.SeeDistance)
                     {
                         return a;
                     }
@@ -70,7 +71,7 @@ namespace Darwinizator
 
                 foreach (var a in s.Value)
                 {
-                    if (QuadraticDistance(a, animal) <= animal.Specie.SeeDistance)
+                    if (Distance(a, animal) <= animal.Specie.SeeDistance)
                     {
                         return a;
                     }
@@ -80,7 +81,7 @@ namespace Darwinizator
             return null;
         }
 
-        internal void Avvicinati(Animal who, Animal to)
+        internal bool Avvicinati(Animal who, Animal to)
         {
             int xMoveAmount = 0;
             int yMoveAmount = 0;
@@ -104,17 +105,56 @@ namespace Darwinizator
                 yMoveAmount = -1 * who.Specie.MovementSpeed;
             }
 
-            if (who.PosX + xMoveAmount >= _worldX || who.PosX + xMoveAmount <= 0)
-                xMoveAmount = 0;
+            if (!PossibleMove(who.PosX + xMoveAmount, _worldX))
+                return false;
 
-            if (who.PosY + yMoveAmount >= _worldY || who.PosX + yMoveAmount <= 0)
-                yMoveAmount = 0;
+            if (!PossibleMove(who.PosY + yMoveAmount, _worldY))
+                return false;
+
+            if (!PossibleNewPosition(
+                who,
+                who.PosX + xMoveAmount,
+                who.PosY + yMoveAmount))
+            {
+                return false;
+            }
 
             who.PosX += xMoveAmount;
             who.PosY += yMoveAmount;
+
+            return true;
         }
 
-        internal void Flee(Animal who, Animal from)
+        internal bool RandomMove(Animal who)
+        {
+            int xMoveAmount = _random.NextDouble() >= 0.5 ? 1 : -1;
+            int yMoveAmount = _random.NextDouble() >= 0.5 ? 1 : -1;
+
+            xMoveAmount *= who.Specie.MovementSpeed;
+            yMoveAmount *= who.Specie.MovementSpeed;
+
+
+            if (!PossibleMove(who.PosX + xMoveAmount, _worldX))
+                return false;
+
+            if (!PossibleMove(who.PosY + yMoveAmount, _worldY))
+                return false;
+
+            if (!PossibleNewPosition(
+                who,
+                who.PosX + xMoveAmount,
+                who.PosY + yMoveAmount))
+            {
+                return false;
+            }
+
+            who.PosX += xMoveAmount;
+            who.PosY += yMoveAmount;
+
+            return true;
+        }
+
+        internal bool Flee(Animal who, Animal from)
         {
             int xMoveAmount = 0;
             int yMoveAmount = 0;
@@ -138,35 +178,73 @@ namespace Darwinizator
                 yMoveAmount = 1 * who.Specie.MovementSpeed;
             }
 
-            if (who.PosX + xMoveAmount >= _worldX || who.PosX + xMoveAmount <= 0)
-                xMoveAmount = 0;
+            if (!PossibleMove(who.PosX + xMoveAmount, _worldX))
+                return false;
 
-            if (who.PosY + yMoveAmount >= _worldY || who.PosX + yMoveAmount <= 0)
-                yMoveAmount = 0;
+            if (!PossibleMove(who.PosY + yMoveAmount, _worldY))
+                return false;
+
+            if (!PossibleNewPosition(
+                who,
+                who.PosX + xMoveAmount,
+                who.PosY + yMoveAmount))
+            {
+                return false;
+            }
 
             who.PosX += xMoveAmount;
             who.PosY += yMoveAmount;
+
+            return true;
         }
 
         internal void Attack(Animal attacker, Animal attacked)
         {
             var botta = attacker.AttackPower - attacked.DefensePower;
+            if (botta < 0)
+                botta = 0;
+
             attacked.Health -= botta;
+
+            // TODO Dubbia... però attaccare deve costare qualcosa
             attacker.Health--;
+        }
+
+        internal bool PossibleMove(int pos, int reference)
+        {
+            return pos < reference && pos >= 0;
+        }
+
+        internal bool PossibleNewPosition(Animal animal, int newPosX, int newPosY)
+        {
+            // TODO Ovviamente poi indicizzerò la griglia
+            foreach (var s in _population.Values)
+            {
+                foreach (var a in s)
+                {
+                    if (a == animal)
+                        continue;
+
+                    if (a.PosX == newPosX && a.PosY == newPosY)
+                        return false;
+                }
+            }
+
+            return true;
         }
 
         internal Animal IsUnderAttack(Animal animal)
         {
             foreach (var s in _population)
             {
-                // TODO poi è da togliere
-                if (s.Key == animal.Specie)
+                // TODO poi è da togliere altrimenti non si riescono a fare le lotto per la riproduzione
+                if (s.Key == animal.Specie || s.Key.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Defensive)
                     continue;
 
                 foreach (var a in s.Value)
                 {
                     if (Math.Abs(a.PosX - animal.PosX) == 1 // E se sono uno sopra l'altro?
-                        || Math.Abs(a.PosY - animal.PosY) == 1)
+                        && Math.Abs(a.PosY - animal.PosY) == 1)
                     {
                         return a;
                     }
@@ -194,7 +272,7 @@ namespace Darwinizator
                 if (a == animal)
                     continue;
 
-                if (QuadraticDistance(animal, a) <= animal.Specie.SeeDistance / 2)
+                if (Distance(animal, a) <= animal.Specie.SeeDistance)
                 {
                     return a;
                 }

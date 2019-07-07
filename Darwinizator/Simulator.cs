@@ -6,23 +6,26 @@ namespace Darwinizator
 {
     public class Simulator
     {
-        private int _xDimension = 500;
-        private int _yDimension = 500;
+        public int XDimension { get; }
+        public int YDimension { get; }
         public int[,] World { get; set; }
         public Dictionary<Specie, List<Animal>> Population { get; set; }
 
         private Evaluator _evaluator;
 
-        public Simulator()
+        public Simulator(int xDimension, int yDimension)
         {
+            XDimension = xDimension;
+            YDimension = yDimension;
+
             var specieGenerator = new SpecieGenerator();
             Population = specieGenerator.InitializePopulation(
-                biodiversity: 4,
+                biodiversity: 5,
                 populationPerSpecie: 10,
-                xDimension: _xDimension,
-                yDimension: _yDimension);
+                xDimension: XDimension,
+                yDimension: YDimension);
 
-            _evaluator = new Evaluator(Population, _xDimension, _yDimension);
+            _evaluator = new Evaluator(Population, XDimension, YDimension);
         }
 
         public void Update()
@@ -43,11 +46,13 @@ namespace Darwinizator
                     //}
 
                     // ...se ha paura e deve scappare
+                    bool moved = false;
+
                     var enemyNearby = _evaluator.NeedsToFlee(animal);
                     if (enemyNearby != null)
                     {
                         Console.WriteLine("Flee");
-                        _evaluator.Flee(animal, enemyNearby);
+                        moved = _evaluator.Flee(animal, enemyNearby);
                     }
 
                     // ...se è lontano dagli altri membri della sua specie
@@ -56,7 +61,13 @@ namespace Darwinizator
                     {
                         // Ci si avvicina
                         Console.WriteLine("Avvicinati");
-                        _evaluator.Avvicinati(animal, allyNearby);
+                        moved =  _evaluator.Avvicinati(animal, allyNearby);
+                    }
+
+                    // ...se non si è mosso, movimento a caso
+                    if (!moved)
+                    {
+                        _evaluator.RandomMove(animal);
                     }
 
                     // TODO Se ha fame...
@@ -67,12 +78,12 @@ namespace Darwinizator
                     var preda = _evaluator.WantsToAttack(animal);
                     if (predator != null)
                     {
-                        Console.WriteLine("Predatore attacca");
-                        _evaluator.Attack(predator, animal);
+                        Console.WriteLine("Preda attacca per difendersi");
+                        _evaluator.Attack(animal, predator);
                     }
                     else if (preda != null)
                     {
-                        Console.WriteLine("Preda attacca per difendersi");
+                        Console.WriteLine("Attacco la preda");
                         _evaluator.Attack(animal, preda);
                     }
 

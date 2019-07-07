@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
 
 namespace Darwinizator.Domain
 {
@@ -9,6 +10,7 @@ namespace Darwinizator.Domain
         public int MovementSpeed { get; set; }
         public int SeeDistance { get; set; }
         public SocialIstinctToOtherSpecies SocialIstinctToOtherSpecies { get; set; }
+        public string Color { get; set; }
 
         public override bool Equals(object obj)
         {
