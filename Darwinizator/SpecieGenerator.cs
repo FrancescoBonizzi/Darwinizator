@@ -24,7 +24,14 @@ namespace Darwinizator
 
             foreach (var specieName in speciesNames)
             {
-                var specie = new Specie() { Name = specieName };
+                var specie = new Specie()
+                {
+                    Name = specieName,
+                    SocialIstinctToOtherSpecies = _random.Next() >= 0.7 ? SocialIstinctToOtherSpecies.Aggressive : SocialIstinctToOtherSpecies.Defensive,
+                    MovementSpeed = _random.Next(1, 5),
+                    SeeDistance = _random.Next(1, 10),
+                    Lifetime = _random.Next(30, 100)
+                };
                 var animals = new List<Animal>();
                 for (int p = 0; p < populationPerSpecie; ++p)
                 {
@@ -33,11 +40,15 @@ namespace Darwinizator
                         {
                             Gender = p % 2 == 0 ? Gender.Male : Gender.Female,
                             Specie = specie,
-                            Lifetime = 100,
-                            MovementSpeed = 5,
-                            SocialIstinctToOtherSpecies = SocialIstinctToOtherSpecies.Aggressive,
+                            
                             PosX = _random.Next(0, xDimension),
                             PosY = _random.Next(0, yDimension),
+
+                            Health = 20,
+                            Age = 0,
+
+                            AttackPower = specie.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Aggressive ? 10 : 2,
+                            DefensePower = specie.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Defensive ? 10 : 2
                             // SocialIstinctToSameSpecies = SocialIstinctToSameSpecies.Groupful
                         });
                 }
@@ -50,7 +61,7 @@ namespace Darwinizator
 
         private string GenerateName()
         {
-            // TODO poi voglio un elenco di tutte le specie umane
+            // TODO poi voglio un elenco di tutte le specie terrestri
             return Guid.NewGuid().ToString("N");
         }
     }

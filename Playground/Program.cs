@@ -1,6 +1,7 @@
 ﻿using Darwinizator;
 using Darwinizator.Domain;
 using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Playground
@@ -14,35 +15,37 @@ namespace Playground
             Console.WriteLine("Welcome to DARWINIZATOR!");
             Console.WriteLine();
 
-            _simulation = new Simulator();
+            var timer = new Stopwatch();
+            timer.Start();
 
-            int i = 0;
+            _simulation = new Simulator();
+            ShowInfos();
+
             while (true)
             {
                 _simulation.Update();
-                if (i == short.MaxValue)
+                if (timer.Elapsed >= TimeSpan.FromSeconds(5))
                 {
-                    i = 0;
+                    timer.Restart();
                     ShowInfos();
                 }
-
-                ++i;
             }
         }
 
         private static void ShowInfos()
         {
+            Console.Clear();
+
             foreach(var p in _simulation.Population)
             {
-                Console.WriteLine(p.Key);
+                Console.WriteLine(p.Key.Name);
                 Console.WriteLine($"\tPopulation: {p.Value.Count}");
                 Console.WriteLine($"\tMales: {p.Value.Count(a => a.Gender == Gender.Male)}");
-                Console.WriteLine($"\tPopulation: {p.Value.Count(a => a.Gender == Gender.Female)}");
+                Console.WriteLine($"\tFemales: {p.Value.Count(a => a.Gender == Gender.Female)}");
                 foreach(var a in p.Value)
                 {
                     Console.WriteLine();
                     Console.WriteLine($"\tPosition: ({a.PosX}; {a.PosY})");
-                    Console.WriteLine($"\tLifetime: {a.Lifetime}");
                     Console.WriteLine($"\tHealth: {a.Health}");
                 }
                 Console.WriteLine();
