@@ -18,12 +18,12 @@ namespace Playground
             var timer = new Stopwatch();
             timer.Start();
 
-            _simulation = new Simulator();
+            _simulation = new Simulator(100, 100);
             ShowInfos();
 
             while (true)
             {
-                _simulation.Update();
+                _simulation.Update(TimeSpan.FromMilliseconds(1));
                 if (timer.Elapsed >= TimeSpan.FromSeconds(5))
                 {
                     timer.Restart();

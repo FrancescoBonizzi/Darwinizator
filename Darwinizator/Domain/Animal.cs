@@ -12,8 +12,8 @@
         public int AttackPower { get; set; }
         public int DefensePower { get; set; }
 
-        public int PosX { get; set; }
-        public int PosY { get; set; }
+        public float PosX { get; set; }
+        public float PosY { get; set; }
 
         // TODO intuitivamente gli animali devono avere una sorta di override 
         // rispetto ai parametri di base, perché ogni individuo ha una sua specificità 

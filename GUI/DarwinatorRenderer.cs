@@ -40,7 +40,7 @@ namespace GUI
 
         protected override void Update(GameTime gameTime)
         {
-            _simulator.Update();
+            _simulator.Update(gameTime.ElapsedGameTime);
             base.Update(gameTime);
         }
 
@@ -58,8 +58,8 @@ namespace GUI
                     // fai un wrapper "sprite" per ogni oggetto del simulator
                     _spriteBatch.DrawRectangle(
                         new Rectangle(
-                            animal.PosX * _cellSize,
-                            animal.PosY * _cellSize,
+                            (int)(animal.PosX * _cellSize),
+                            (int)(animal.PosY * _cellSize),
                             _cellSize,
                             _cellSize),
                         new Color(Convert.ToUInt32(animal.Specie.Color.Replace("#", string.Empty), 16)));
