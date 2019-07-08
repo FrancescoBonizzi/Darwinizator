@@ -20,7 +20,7 @@ namespace Darwinizator
 
             var specieGenerator = new SpecieGenerator();
             Population = specieGenerator.InitializePopulation(
-                biodiversity: 5,
+                biodiversity: 10,
                 populationPerSpecie: 10,
                 xDimension: XDimension,
                 yDimension: YDimension);
@@ -34,86 +34,62 @@ namespace Darwinizator
             {
                 foreach (var animal in specie.Value)
                 {
-                    // Come un gioco in scatola, ogni animale fa un turno 
-                    // che comprende varie possiblità di azione
-
-                    // * Movimento...
-                    // ...se deve riprodursi
                     //if (_evaluator.NeedsToReproduce(animal))
                     //{
                     //    // Se è in calore si muove verso la prima femmina il linea d'aria
                     //    throw new NotImplementedException();
                     //}
 
-                    // ...se ha paura e deve scappare
+
+                    // * Movement
                     bool moved = false;
 
-                    // TODO fare meglio... non far gestire il tipo di animale negli evaluate, ma gestiscilo qui
-
-                    var enemyNearby = _evaluator.EnemyNearby(animal);
+                    // This is the difference between Aggressive and Defensive animals
+                    var enemyNearby = _evaluator.FirstEnemyInLineOfSight(animal);
                     if (enemyNearby != null)
                     {
                         if (animal.Specie.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Defensive)
                         {
-                            // Un difensivo scappa
+                            // A defensive runs away
                             moved = _evaluator.Flee(animal, enemyNearby, elapsed);
                         }
-                        else
+                        else if (animal.Specie.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Aggressive)
                         {
-                            // Un aggressivo si avvicina
-                            moved = _evaluator.Avvicinati(animal, enemyNearby, elapsed);
+                            // An aggressive approaches to attack
+                            moved = _evaluator.Approach(animal, enemyNearby, elapsed);
                         }
-
-                        // Se è vicino, attacca sempre
                     }
 
                     if (!moved)
                     {
-                        // ...se è lontano dagli altri membri della sua specie
-                        var allyNearby = _evaluator.IsDistantFromHisSpecie(animal);
+                        // Every animal tends to stay in group with his specie
+                        var allyNearby = _evaluator.AllayInLineOfSight(animal);
                         if (allyNearby != null)
                         {
-                            // Ci si avvicina
-                            Console.WriteLine("Avvicinati");
-                            moved = _evaluator.Avvicinati(animal, allyNearby, elapsed);
+                            moved = _evaluator.Approach(animal, allyNearby, elapsed);
                         }
                     }
 
-                    // ...se non si è mosso, movimento a caso
+                    // If there is nothing interesting to do, move randomly
                     if (!moved)
                     {
                         _evaluator.RandomMove(animal, elapsed);
                     }
 
-                    // TODO Se ha fame...
-                    // Altrimenti non ha motivo di muoversi
-
-                    // * Attacco
-                    var predator = _evaluator.IsUnderAttack(animal);
-                    if (predator != null)
+                    // * Attack
+                    if (enemyNearby != null)
                     {
-                        Console.WriteLine("Preda attacca per difendersi");
-                        _evaluator.Attack(animal, predator);
-                    }
-                    else
-                    {
-                        var preda = _evaluator.WantsToAttack(animal);
-                        if (preda != null)
+                        if (_evaluator.IsEnoughCloseToAttack(animal, enemyNearby))
                         {
-                            Console.WriteLine("Attacco la preda");
-                            _evaluator.Attack(animal, preda);
+                            // The animal needs to defend himself
+                            _evaluator.Attack(animal, enemyNearby);
                         }
                     }
 
                     _evaluator.EvaluateAge(animal);
-
                 }
 
-                var animaliMorti = specie.Value.RemoveAll(a => _evaluator.IsDead(a));
-                if (animaliMorti > 0)
-                {
-                    Console.WriteLine($"Numero animali morti: {animaliMorti}");
-                }
+                specie.Value.RemoveAll(a => _evaluator.IsDead(a));
             }
         }
 

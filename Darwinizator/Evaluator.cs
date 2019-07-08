@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Darwinizator.Domain;
+using System;
 using System.Collections.Generic;
-using Darwinizator.Domain;
 
 namespace Darwinizator
 {
@@ -9,7 +9,7 @@ namespace Darwinizator
         private readonly Dictionary<Specie, List<Animal>> _population;
         private readonly int _worldX;
         private readonly int _worldY;
-        private static Random _random = new Random();
+        private static readonly Random _random = new Random();
 
         public Evaluator(
             Dictionary<Specie, List<Animal>> population,
@@ -39,20 +39,20 @@ namespace Darwinizator
             return animal.Age >= animal.Specie.Lifetime / 4;
         }
 
-        internal Animal EnemyNearby(Animal animal)
+        internal Animal FirstEnemyInLineOfSight(Animal animal)
         {
-            // True se c'è un animale di un'altra specie aggressivo vicino.
-
-            if (animal.Specie.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Aggressive)
-                return null;
-          
             foreach (var s in _population)
             {
+                // An animal of the same specie isn't an enemy
                 if (s.Key == animal.Specie)
                     continue;
 
-                if (s.Key.SocialIstinctToOtherSpecies != SocialIstinctToOtherSpecies.Aggressive)
+                // A defensive enemy isn't an enemy if you are defensive
+                if (animal.Specie.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Defensive
+                    && s.Key.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Defensive)
+                {
                     continue;
+                }
 
                 foreach (var a in s.Value)
                 {
@@ -66,30 +66,7 @@ namespace Darwinizator
             return null;
         }
 
-        internal Animal WantsToAttack(Animal animal)
-        {
-            if (animal.Specie.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Defensive)
-                return null;
-            // In realtà ci saranno altri vincoli tipo "sono in calore, vicino ad una femmina e c'è un altro pretendente"
-
-            foreach (var s in _population)
-            {
-                if (s.Key == animal.Specie)
-                    continue;
-
-                foreach (var a in s.Value)
-                {
-                    if (Distance(a, animal) <= 2)
-                    {
-                        return a;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        internal bool Avvicinati(Animal who, Animal to, TimeSpan elapsed)
+        internal bool Approach(Animal who, Animal to, TimeSpan elapsed)
         {
             float xMoveAmount = 0;
             float yMoveAmount = 0;
@@ -114,19 +91,8 @@ namespace Darwinizator
                 yMoveAmount = -1 * multiplier;
             }
 
-            if (!PossibleMove(who.PosX + xMoveAmount, _worldX))
+            if (!IsNewPositionPossible(who, xMoveAmount, yMoveAmount))
                 return false;
-
-            if (!PossibleMove(who.PosY + yMoveAmount, _worldY))
-                return false;
-
-            if (!PossibleNewPosition(
-                who,
-                who.PosX + xMoveAmount,
-                who.PosY + yMoveAmount))
-            {
-                return false;
-            }
 
             who.PosX += xMoveAmount;
             who.PosY += yMoveAmount;
@@ -144,22 +110,33 @@ namespace Darwinizator
             xMoveAmount *= multiplier;
             yMoveAmount *= multiplier;
 
-            if (!PossibleMove(who.PosX + xMoveAmount, _worldX))
+            if (!IsNewPositionPossible(who, xMoveAmount, yMoveAmount))
                 return false;
 
-            if (!PossibleMove(who.PosY + yMoveAmount, _worldY))
+            who.PosX += xMoveAmount;
+            who.PosY += yMoveAmount;
+
+            return true;
+        }
+
+        internal bool IsNewPositionPossible(
+            Animal who,
+            float xMoveAmount,
+            float yMoveAmount)
+        {
+            if (!CouldBeOutOfWorld(who.PosX + xMoveAmount, _worldX))
                 return false;
 
-            if (!PossibleNewPosition(
+            if (!CouldBeOutOfWorld(who.PosY + yMoveAmount, _worldY))
+                return false;
+
+            if (!CouldBeOnAnotherAnimal(
                 who,
                 who.PosX + xMoveAmount,
                 who.PosY + yMoveAmount))
             {
                 return false;
             }
-
-            who.PosX += xMoveAmount;
-            who.PosY += yMoveAmount;
 
             return true;
         }
@@ -190,19 +167,8 @@ namespace Darwinizator
                 yMoveAmount = 1 * multiplier;
             }
 
-            if (!PossibleMove(who.PosX + xMoveAmount, _worldX))
+            if (!IsNewPositionPossible(who, xMoveAmount, yMoveAmount))
                 return false;
-
-            if (!PossibleMove(who.PosY + yMoveAmount, _worldY))
-                return false;
-
-            if (!PossibleNewPosition(
-                who,
-                who.PosX + xMoveAmount,
-                who.PosY + yMoveAmount))
-            {
-                return false;
-            }
 
             who.PosX += xMoveAmount;
             who.PosY += yMoveAmount;
@@ -222,12 +188,12 @@ namespace Darwinizator
             attacker.Health--;
         }
 
-        internal bool PossibleMove(float pos, int reference)
+        internal bool CouldBeOutOfWorld(float pos, int reference)
         {
             return pos < reference && pos >= 0;
         }
 
-        internal bool PossibleNewPosition(Animal animal, float newPosX, float newPosY)
+        internal bool CouldBeOnAnotherAnimal(Animal animal, float newPosX, float newPosY)
         {
             // TODO Ovviamente poi indicizzerò la griglia
             foreach (var s in _population.Values)
@@ -237,7 +203,8 @@ namespace Darwinizator
                     if (a == animal)
                         continue;
 
-                    if (Distance(a.PosX, a.PosY, newPosX, newPosY) <= 0.5f)
+                    // Soglia per determinare se due animali non possono essere sovrapposti
+                    if (Distance(a.PosX, a.PosY, newPosX, newPosY) <= 0.7f)
                         return false;
                 }
             }
@@ -245,24 +212,9 @@ namespace Darwinizator
             return true;
         }
 
-        internal Animal IsUnderAttack(Animal animal)
+        internal bool IsEnoughCloseToAttack(Animal who, Animal enemy)
         {
-            foreach (var s in _population)
-            {
-                // TODO poi è da togliere altrimenti non si riescono a fare le lotto per la riproduzione
-                if (s.Key == animal.Specie || s.Key.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Defensive)
-                    continue;
-
-                foreach (var a in s.Value)
-                {
-                    if (Distance(animal, a) <= 1)
-                    {
-                        return a;
-                    }
-                }
-            }
-
-            return null;
+            return Distance(who, enemy) <= 1;
         }
 
         internal void EvaluateAge(Animal animal)
@@ -275,7 +227,7 @@ namespace Darwinizator
             return animal.Age >= animal.Specie.Lifetime || animal.Health <= 0;
         }
 
-        internal Animal IsDistantFromHisSpecie(Animal animal)
+        internal Animal AllayInLineOfSight(Animal animal)
         {
             var thisAnimalPopulation = _population[animal.Specie];
             foreach (var a in thisAnimalPopulation)
