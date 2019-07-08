@@ -28,11 +28,11 @@ namespace Darwinizator
                 var specie = new Specie()
                 {
                     Name = specieName,
-                    SocialIstinctToOtherSpecies = SocialIstinctToOtherSpecies.Defensive, //_random.Next() >= 0.7 ? SocialIstinctToOtherSpecies.Aggressive : SocialIstinctToOtherSpecies.Defensive,
+                    SocialIstinctToOtherSpecies = _random.NextDouble() >= 0.3 ? SocialIstinctToOtherSpecies.Aggressive : SocialIstinctToOtherSpecies.Defensive,
                     MovementSpeed = 30,
                     SeeDistance = 10,
                     Lifetime = 20,
-                    MaxSons = 3,
+                    MaxSons = 2,
                     Color = _colorsProvider.GetNextColor()
                 };
 

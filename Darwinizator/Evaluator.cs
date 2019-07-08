@@ -223,9 +223,6 @@ namespace Darwinizator
                 botta = 0;
 
             attacked.Health -= botta;
-
-            // TODO Dubbia... però attaccare deve costare qualcosa
-            attacker.Health--;
         }
 
         internal bool CouldBeOutOfWorld(float pos, int reference)
