@@ -36,7 +36,17 @@ namespace Darwinizator
 
         internal bool NeedsToReproduce(Animal animal)
         {
-            return animal.Age >= animal.Specie.Lifetime / 4;
+            if (animal.Gender == Gender.Male)
+            {
+                return animal.Age >= animal.Specie.Lifetime / 4;
+            }
+            else if (animal.Gender == Gender.Female)
+            {
+                return animal.Age >= animal.Specie.Lifetime / 4 
+                    && animal.Age < animal.Specie.Lifetime / 2;
+            }
+
+            return false;
         }
 
         internal Animal FirstEnemyInLineOfSight(Animal animal)
@@ -98,6 +108,36 @@ namespace Darwinizator
             who.PosY += yMoveAmount;
 
             return true;
+        }
+
+        internal Animal Copulate(Animal animal, Animal otherGenderAllyNearby)
+        {
+            if (animal.Specie != otherGenderAllyNearby.Specie)
+                throw new Exception("Cannot copulate between different species");
+
+            // Per adesso li faccio copie esatte,
+            // poi farò che l'animale fa l'override dei caratteri di specie,
+            // pensare bene a come farlo a livello di codice, magari la specie sarà la classe base semplicemente
+            var sonSpecie = animal.Specie;
+            var son = AnimalGenerator.GenerateAnimal(
+                sonSpecie,
+                _random.NextDouble() >= 0.5 ? Gender.Male : Gender.Female,
+                animal.PosX,
+                animal.PosY);
+
+            // TODO decidere se far valere questa regola uguale per maschi e femmine
+            animal.SonsDone++;
+            otherGenderAllyNearby.SonsDone++;
+
+            return son;
+        }
+
+        internal bool CanCopulate(Animal animal, Animal otherGenderAnimal)
+        {
+            return NeedsToReproduce(animal) 
+                && NeedsToReproduce(otherGenderAnimal)
+                && animal.SonsDone < animal.Specie.MaxSons
+                && otherGenderAnimal.SonsDone < otherGenderAnimal.Specie.MaxSons;
         }
 
         internal bool RandomMove(Animal who, TimeSpan elapsed)
@@ -204,7 +244,7 @@ namespace Darwinizator
                         continue;
 
                     // Soglia per determinare se due animali non possono essere sovrapposti
-                    if (Distance(a.PosX, a.PosY, newPosX, newPosY) <= 0.7f)
+                    if (Distance(a.PosX, a.PosY, newPosX, newPosY) <= 0.9f)
                         return false;
                 }
             }
@@ -212,14 +252,14 @@ namespace Darwinizator
             return true;
         }
 
-        internal bool IsEnoughCloseToAttack(Animal who, Animal enemy)
+        internal bool IsEnoughCloseToInteract(Animal who, Animal withWho)
         {
-            return Distance(who, enemy) <= 1;
+            return Distance(who, withWho) <= 1;
         }
 
         internal void EvaluateAge(Animal animal)
         {
-            animal.Age += 0.00001f;
+            animal.Age += 0.01f;
         }
 
         internal bool IsDead(Animal animal)
@@ -227,12 +267,15 @@ namespace Darwinizator
             return animal.Age >= animal.Specie.Lifetime || animal.Health <= 0;
         }
 
-        internal Animal AllayInLineOfSight(Animal animal)
+        internal Animal AllayInLineOfSight(Animal animal, bool? searchForOtherGender = null)
         {
             var thisAnimalPopulation = _population[animal.Specie];
             foreach (var a in thisAnimalPopulation)
             {
                 if (a == animal)
+                    continue;
+
+                if (searchForOtherGender != null && a.Gender == animal.Gender)
                     continue;
 
                 if (Distance(animal, a) <= animal.Specie.SeeDistance)

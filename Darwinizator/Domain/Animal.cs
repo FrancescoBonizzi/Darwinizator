@@ -15,6 +15,8 @@
         public float PosX { get; set; }
         public float PosY { get; set; }
 
+        public int SonsDone { get; set; } = 0;
+
         // TODO intuitivamente gli animali devono avere una sorta di override 
         // rispetto ai parametri di base, perché ogni individuo ha una sua specificità 
         // che deve poi essere trasmessa: es uno casualmente ha un'attacco molto più alto

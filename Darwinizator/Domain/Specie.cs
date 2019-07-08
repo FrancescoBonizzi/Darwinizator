@@ -11,6 +11,7 @@ namespace Darwinizator.Domain
         public int SeeDistance { get; set; }
         public SocialIstinctToOtherSpecies SocialIstinctToOtherSpecies { get; set; }
         public string Color { get; set; }
+        public int MaxSons { get; set; }
 
         public override bool Equals(object obj)
         {

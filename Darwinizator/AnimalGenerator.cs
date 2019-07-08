@@ -4,10 +4,10 @@ using System.Collections.Generic;
 
 namespace Darwinizator
 {
-    public class SpecieGenerator
+    public class AnimalGenerator
     {
-        private static Random _random = new Random();
-        private ColorsProvider _colorsProvider = new ColorsProvider();
+        private static readonly Random _random = new Random();
+        private readonly ColorsProvider _colorsProvider = new ColorsProvider();
 
         public Dictionary<Specie, List<Animal>> InitializePopulation(
             int biodiversity,
@@ -31,35 +31,48 @@ namespace Darwinizator
                     SocialIstinctToOtherSpecies = SocialIstinctToOtherSpecies.Defensive, //_random.Next() >= 0.7 ? SocialIstinctToOtherSpecies.Aggressive : SocialIstinctToOtherSpecies.Defensive,
                     MovementSpeed = 30,
                     SeeDistance = 10,
-                    Lifetime = 50,
+                    Lifetime = 20,
+                    MaxSons = 3,
                     Color = _colorsProvider.GetNextColor()
                 };
 
                 var animals = new List<Animal>();
                 for (int p = 0; p < populationPerSpecie; ++p)
                 {
-                    animals.Add(
-                        new Animal()
-                        {
-                            Gender = p % 2 == 0 ? Gender.Male : Gender.Female,
-                            Specie = specie,
-
-                            PosX = _random.Next(0, xDimension),
-                            PosY = _random.Next(0, yDimension),
-
-                            Health = 20,
-                            Age = 0,
-
-                            AttackPower = specie.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Aggressive ? 5 : 2,
-                            DefensePower = specie.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Defensive ? 10 : 2
-                            // SocialIstinctToSameSpecies = SocialIstinctToSameSpecies.Groupful
-                        });
+                    animals.Add(GenerateAnimal(
+                        specie,
+                        p % 2 == 0 ? Gender.Male : Gender.Female,
+                        _random.Next(0, xDimension),
+                        _random.Next(0, yDimension)));
                 }
 
                 population.Add(specie, animals);
             }
 
             return population;
+        }
+
+        public static Animal GenerateAnimal(
+            Specie specie,
+            Gender gender,
+            float posX,
+            float posY)
+        {
+            return new Animal()
+            {
+                Gender = gender,
+                Specie = specie,
+
+                PosX = posX,
+                PosY = posY,
+
+                Health = 20,
+                Age = 0,
+
+                AttackPower = specie.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Aggressive ? 5 : 2,
+                DefensePower = specie.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Defensive ? 10 : 2
+                // SocialIstinctToSameSpecies = SocialIstinctToSameSpecies.Groupful
+            };
         }
     }
 }

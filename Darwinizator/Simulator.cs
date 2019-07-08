@@ -18,7 +18,7 @@ namespace Darwinizator
             XDimension = xDimension;
             YDimension = yDimension;
 
-            var specieGenerator = new SpecieGenerator();
+            var specieGenerator = new AnimalGenerator();
             Population = specieGenerator.InitializePopulation(
                 biodiversity: 10,
                 populationPerSpecie: 10,
@@ -32,15 +32,10 @@ namespace Darwinizator
         {
             foreach (var specie in Population)
             {
+                var newGeneration = new List<Animal>();
+
                 foreach (var animal in specie.Value)
                 {
-                    //if (_evaluator.NeedsToReproduce(animal))
-                    //{
-                    //    // Se è in calore si muove verso la prima femmina il linea d'aria
-                    //    throw new NotImplementedException();
-                    //}
-
-
                     // * Movement
                     bool moved = false;
 
@@ -70,16 +65,34 @@ namespace Darwinizator
                         }
                     }
 
+                    // If it is in love, find a partner
+                    if (_evaluator.NeedsToReproduce(animal))
+                    {
+                        var otherGenderAllyNearby = _evaluator.AllayInLineOfSight(animal);
+                        if (otherGenderAllyNearby != null)
+                        {
+                            moved = _evaluator.Approach(animal, otherGenderAllyNearby, elapsed);
+
+                            if (_evaluator.IsEnoughCloseToInteract(animal, otherGenderAllyNearby)
+                                && _evaluator.CanCopulate(animal, otherGenderAllyNearby))
+                            {
+                                var newAnimal = _evaluator.Copulate(animal, otherGenderAllyNearby);
+                                newGeneration.Add(newAnimal);
+                            }
+                        }
+                    }
+
                     // If there is nothing interesting to do, move randomly
                     if (!moved)
                     {
                         _evaluator.RandomMove(animal, elapsed);
                     }
 
+
                     // * Attack
                     if (enemyNearby != null)
                     {
-                        if (_evaluator.IsEnoughCloseToAttack(animal, enemyNearby))
+                        if (_evaluator.IsEnoughCloseToInteract(animal, enemyNearby))
                         {
                             // The animal needs to defend himself
                             _evaluator.Attack(animal, enemyNearby);
@@ -89,7 +102,12 @@ namespace Darwinizator
                     _evaluator.EvaluateAge(animal);
                 }
 
-                specie.Value.RemoveAll(a => _evaluator.IsDead(a));
+                var animalKilled = specie.Value.RemoveAll(a => _evaluator.IsDead(a));
+                specie.Value.AddRange(newGeneration);
+                if (newGeneration.Count > 0)
+                    System.Diagnostics.Debug.WriteLine($"NewGeneration: {specie.Key.Name} - {newGeneration.Count}");
+                if (animalKilled > 0)
+                    System.Diagnostics.Debug.WriteLine($"Killed: {specie.Key.Name} - {animalKilled}");
             }
         }
 
