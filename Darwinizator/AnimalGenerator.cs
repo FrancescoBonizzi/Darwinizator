@@ -7,71 +7,103 @@ namespace Darwinizator
     public class AnimalGenerator
     {
         private static readonly Random _random = new Random();
-        private readonly ColorsProvider _colorsProvider = new ColorsProvider();
 
-        public Dictionary<Specie, List<Animal>> InitializePopulation(
-            int biodiversity,
+        public Dictionary<string, List<Animal>> InitializePopulation(
             int populationPerSpecie,
-            int xDimension,
-            int yDimension)
+            int worldXSize,
+            int worldYSize)
         {
-            var population = new Dictionary<Specie, List<Animal>>();
+            var population = new Dictionary<string, List<Animal>>();
 
-            var speciesNames = new List<string>();
-            for (int s = 0; s < biodiversity; ++s)
             {
-                speciesNames.Add($"s{s}");
-            }
-
-            foreach (var specieName in speciesNames)
-            {
-                var specie = new Specie()
-                {
-                    Name = specieName,
-                    SocialIstinctToOtherSpecies = _random.NextDouble() >= 0.3 ? SocialIstinctToOtherSpecies.Aggressive : SocialIstinctToOtherSpecies.Defensive,
-                    MovementSpeed = 30,
-                    SeeDistance = 10,
-                    Lifetime = 20,
-                    MaxSons = 2,
-                    Color = _colorsProvider.GetNextColor()
-                };
-
+                const SocialIstinctToOtherSpecies socialInstinct = SocialIstinctToOtherSpecies.Aggressive;
+                var specieName = socialInstinct.ToString();
                 var animals = new List<Animal>();
-                for (int p = 0; p < populationPerSpecie; ++p)
+                for (int i = 0; i < populationPerSpecie; ++i)
                 {
                     animals.Add(GenerateAnimal(
-                        specie,
-                        p % 2 == 0 ? Gender.Male : Gender.Female,
-                        _random.Next(0, xDimension),
-                        _random.Next(0, yDimension)));
+                        specieName: specieName,
+                        socialIstinctToOtherSpecies: socialInstinct,
+                        maleColor: "ff0000",
+                        femaleColor: "ff0066",
+                        _random.Next(0, worldXSize),
+                        _random.Next(0, worldYSize)));
                 }
 
-                population.Add(specie, animals);
+                population.Add(specieName, animals);
+            }
+
+            {
+                const SocialIstinctToOtherSpecies socialInstinct = SocialIstinctToOtherSpecies.Defensive;
+                var specieName = socialInstinct.ToString();
+                var animals = new List<Animal>();
+                for (int i = 0; i < populationPerSpecie; ++i)
+                {
+                    animals.Add(GenerateAnimal(
+                        specieName: specieName,
+                        socialIstinctToOtherSpecies: socialInstinct,
+                        maleColor: "51ff00",
+                        femaleColor: "00fff2",
+                        _random.Next(0, worldXSize),
+                        _random.Next(0, worldYSize)));
+                }
+
+                population.Add(specieName, animals);
             }
 
             return population;
         }
 
         public static Animal GenerateAnimal(
-            Specie specie,
-            Gender gender,
+            Animal father,
+            Animal mother)
+        {
+            var animal = GenerateAnimal(
+                father.SpecieName,
+                father.SocialIstinctToOtherSpecies,
+                father.Color,
+                mother.Color,
+                mother.PosX,
+                mother.PosY);
+
+            animal.IntervalBetweenReproductions = mother.IntervalBetweenReproductions;
+
+            // TODO randomizza caratteristiche di specie con una funzione che parte dai genitori
+
+            return animal;
+        }
+
+        public static Animal GenerateAnimal(
+            string specieName,
+            SocialIstinctToOtherSpecies socialIstinctToOtherSpecies,
+            string maleColor,
+            string femaleColor,
             float posX,
             float posY)
         {
+            var gender = _random.NextDouble() >= 0.5 ? Gender.Male : Gender.Female;
+            var color = gender == Gender.Male ? maleColor : femaleColor;
+
             return new Animal()
             {
+                SpecieName = specieName,
+                Color = color,
+                SocialIstinctToOtherSpecies = socialIstinctToOtherSpecies,
                 Gender = gender,
-                Specie = specie,
-
                 PosX = posX,
                 PosY = posY,
-
-                Health = 20,
                 Age = 0,
+                Father = null,
+                Mother = null,
+                NextYearCanReprouce = 5,
 
-                AttackPower = specie.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Aggressive ? 5 : 2,
-                DefensePower = specie.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Defensive ? 10 : 2
-                // SocialIstinctToSameSpecies = SocialIstinctToSameSpecies.Groupful
+                Lifetime = 16,
+                MovementSpeed = 30,
+                SeeDistance = 10,
+                Health = 20,
+                AttackPower = 5,
+                DefensePower = 5,
+                IntervalBetweenReproductions = 5
             };
         }
     }

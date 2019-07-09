@@ -2,25 +2,24 @@
 {
     public class Animal
     {
-        public Specie Specie { get; set; }
-     
-        public float Age { get; set; }
+        public string SpecieName { get; set; }
+        public string Color { get; set; }
+        public SocialIstinctToOtherSpecies SocialIstinctToOtherSpecies { get; set; }
         public Gender Gender { get; set; }
-       
-        public int Health { get; set; }
-
-        public int AttackPower { get; set; }
-        public int DefensePower { get; set; }
-
         public float PosX { get; set; }
         public float PosY { get; set; }
+        public float Age { get; set; }
+        public Animal Father { get; set; }
+        public Animal Mother { get; set; }
+        public int NextYearCanReprouce { get; set; }
 
-        public int SonsDone { get; set; } = 0;
-
-        // TODO intuitivamente gli animali devono avere una sorta di override 
-        // rispetto ai parametri di base, perché ogni individuo ha una sua specificità 
-        // che deve poi essere trasmessa: es uno casualmente ha un'attacco molto più alto
-        // e questo ha più probabilità di sopravvivenza
-
+        // Survival/heritable charateristics
+        public float Lifetime { get; set; }
+        public int MovementSpeed { get; set; }
+        public int SeeDistance { get; set; }
+        public int Health { get; set; }
+        public int AttackPower { get; set; }
+        public int DefensePower { get; set; }
+        public int IntervalBetweenReproductions { get; set; }
     }
 }

@@ -1,8 +1,9 @@
 ﻿using Darwinizator;
+using FbonizziMonoGame.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using FbonizziMonoGame.Extensions;
 using System;
+using System.Linq;
 
 namespace GUI
 {
@@ -26,8 +27,8 @@ namespace GUI
                 SupportedOrientations = DisplayOrientation.LandscapeLeft | DisplayOrientation.LandscapeRight
             };
 
-            GraphicsDeviceManager.PreferredBackBufferWidth = simulator.XDimension * _cellSize;
-            GraphicsDeviceManager.PreferredBackBufferHeight = simulator.YDimension * _cellSize;
+            GraphicsDeviceManager.PreferredBackBufferWidth = simulator.WorldXSize * _cellSize;
+            GraphicsDeviceManager.PreferredBackBufferHeight = simulator.WorldYSize * _cellSize;
 
             IsMouseVisible = true;
         }
@@ -56,13 +57,14 @@ namespace GUI
                 {
                     // TODO Ovviamente ognuno avrà il suo rettangolo,
                     // fai un wrapper "sprite" per ogni oggetto del simulator
+                    // crearlo nuovo ogni giro è lentissimo
                     _spriteBatch.DrawRectangle(
                         new Rectangle(
                             (int)(animal.PosX * _cellSize),
                             (int)(animal.PosY * _cellSize),
                             _cellSize,
                             _cellSize),
-                        new Color(Convert.ToUInt32(animal.Specie.Color.Replace("#", string.Empty), 16)));
+                        animal.Color.ConvertToXnaColor());
                 }
             }
 

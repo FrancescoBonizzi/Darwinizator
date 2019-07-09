@@ -6,26 +6,27 @@ namespace Darwinizator
 {
     public class Simulator
     {
-        public int XDimension { get; }
-        public int YDimension { get; }
+        public int WorldXSize { get; }
+        public int WorldYSize { get; }
         public int[,] World { get; set; }
-        public Dictionary<Specie, List<Animal>> Population { get; set; }
+        public Dictionary<string, List<Animal>> Population { get; set; }
 
         private readonly Evaluator _evaluator;
 
-        public Simulator(int xDimension, int yDimension)
+        public Simulator(
+            int worldXSize,
+            int worldYSize)
         {
-            XDimension = xDimension;
-            YDimension = yDimension;
+            WorldXSize = worldXSize;
+            WorldYSize = worldYSize;
 
             var specieGenerator = new AnimalGenerator();
             Population = specieGenerator.InitializePopulation(
-                biodiversity: 10,
-                populationPerSpecie: 10,
-                xDimension: XDimension,
-                yDimension: YDimension);
+                populationPerSpecie: 20,
+                worldXSize: WorldXSize,
+                worldYSize: WorldYSize);
 
-            _evaluator = new Evaluator(Population, XDimension, YDimension);
+            _evaluator = new Evaluator(Population, WorldXSize, WorldYSize);
         }
 
         public void Update(TimeSpan elapsed)
@@ -43,12 +44,12 @@ namespace Darwinizator
                     var enemyNearby = _evaluator.FirstEnemyInLineOfSight(animal);
                     if (enemyNearby != null)
                     {
-                        if (animal.Specie.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Defensive)
+                        if (animal.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Defensive)
                         {
                             // A defensive runs away
                             moved = _evaluator.Flee(animal, enemyNearby, elapsed);
                         }
-                        else if (animal.Specie.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Aggressive)
+                        else if (animal.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Aggressive)
                         {
                             // An aggressive approaches to attack
                             moved = _evaluator.Approach(animal, enemyNearby, elapsed);
@@ -68,15 +69,17 @@ namespace Darwinizator
                     // If it is in love, find a partner
                     if (_evaluator.NeedsToReproduce(animal))
                     {
-                        var otherGenderAllyNearby = _evaluator.AllayInLineOfSight(animal);
-                        if (otherGenderAllyNearby != null)
+                        var otherGenderAllyNearbyThatNeedsToReproduce = _evaluator.AllayInLineOfSight(animal, true);
+                        if (otherGenderAllyNearbyThatNeedsToReproduce != null)
                         {
-                            moved = _evaluator.Approach(animal, otherGenderAllyNearby, elapsed);
+                            moved = _evaluator.Approach(animal, otherGenderAllyNearbyThatNeedsToReproduce, elapsed);
 
-                            if (_evaluator.IsEnoughCloseToInteract(animal, otherGenderAllyNearby)
-                                && _evaluator.CanCopulate(animal, otherGenderAllyNearby))
+                            if (_evaluator.IsEnoughCloseToInteract(animal, otherGenderAllyNearbyThatNeedsToReproduce))
                             {
-                                var newAnimal = _evaluator.Copulate(animal, otherGenderAllyNearby);
+                                var father = animal.Gender == Gender.Male ? animal : otherGenderAllyNearbyThatNeedsToReproduce;
+                                var mother = animal.Gender == Gender.Female ? animal : otherGenderAllyNearbyThatNeedsToReproduce;
+
+                                var newAnimal = _evaluator.Copulate(father: father, mother: mother);
                                 newGeneration.Add(newAnimal);
                             }
                         }
@@ -102,12 +105,8 @@ namespace Darwinizator
                     _evaluator.EvaluateAge(animal);
                 }
 
-                var animalKilled = specie.Value.RemoveAll(a => _evaluator.IsDead(a));
+                specie.Value.RemoveAll(a => _evaluator.IsDead(a));
                 specie.Value.AddRange(newGeneration);
-                if (newGeneration.Count > 0)
-                    System.Diagnostics.Debug.WriteLine($"NewGeneration: {specie.Key.Name} - {newGeneration.Count}");
-                if (animalKilled > 0)
-                    System.Diagnostics.Debug.WriteLine($"Killed: {specie.Key.Name} - {animalKilled}");
             }
         }
 

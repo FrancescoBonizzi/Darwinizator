@@ -6,13 +6,13 @@ namespace Darwinizator
 {
     public class Evaluator
     {
-        private readonly Dictionary<Specie, List<Animal>> _population;
+        private readonly Dictionary<string, List<Animal>> _population;
         private readonly int _worldX;
         private readonly int _worldY;
         private static readonly Random _random = new Random();
 
         public Evaluator(
-            Dictionary<Specie, List<Animal>> population,
+            Dictionary<string, List<Animal>> population,
             int worldX,
             int worldY)
         {
@@ -33,42 +33,27 @@ namespace Darwinizator
                     Math.Pow(aPosX - bPosX, 2)
                     + Math.Pow(aPosY - bPosY, 2)));
         }
-
-        internal bool NeedsToReproduce(Animal animal)
-        {
-            if (animal.Gender == Gender.Male)
-            {
-                return animal.Age >= animal.Specie.Lifetime / 4;
-            }
-            else if (animal.Gender == Gender.Female)
-            {
-                return animal.Age >= animal.Specie.Lifetime / 4 
-                    && animal.Age < animal.Specie.Lifetime / 2;
-            }
-
-            return false;
-        }
-
+        
         internal Animal FirstEnemyInLineOfSight(Animal animal)
         {
-            foreach (var s in _population)
+            foreach (var specie in _population)
             {
                 // An animal of the same specie isn't an enemy
-                if (s.Key == animal.Specie)
+                if (specie.Key == animal.SpecieName)
                     continue;
 
-                // A defensive enemy isn't an enemy if you are defensive
-                if (animal.Specie.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Defensive
-                    && s.Key.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Defensive)
+                foreach (var otherAnimal in specie.Value)
                 {
-                    continue;
-                }
-
-                foreach (var a in s.Value)
-                {
-                    if (Distance(a, animal) <= animal.Specie.SeeDistance)
+                    // A defensive enemy isn't an enemy if you are defensive
+                    if (animal.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Defensive
+                        && otherAnimal.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Defensive)
                     {
-                        return a;
+                        continue;
+                    }
+
+                    if (Distance(otherAnimal, animal) <= animal.SeeDistance)
+                    {
+                        return otherAnimal;
                     }
                 }
             }
@@ -81,7 +66,7 @@ namespace Darwinizator
             float xMoveAmount = 0;
             float yMoveAmount = 0;
 
-            var multiplier = (float)(who.Specie.MovementSpeed * elapsed.TotalSeconds);
+            var multiplier = (float)(who.MovementSpeed * elapsed.TotalSeconds);
 
             if (who.PosX <= to.PosX)
             {
@@ -110,34 +95,21 @@ namespace Darwinizator
             return true;
         }
 
-        internal Animal Copulate(Animal animal, Animal otherGenderAllyNearby)
+        internal Animal Copulate(Animal father, Animal mother)
         {
-            if (animal.Specie != otherGenderAllyNearby.Specie)
+            if (father.SpecieName != mother.SpecieName)
                 throw new Exception("Cannot copulate between different species");
 
-            // Per adesso li faccio copie esatte,
-            // poi farò che l'animale fa l'override dei caratteri di specie,
-            // pensare bene a come farlo a livello di codice, magari la specie sarà la classe base semplicemente
-            var sonSpecie = animal.Specie;
-            var son = AnimalGenerator.GenerateAnimal(
-                sonSpecie,
-                _random.NextDouble() >= 0.5 ? Gender.Male : Gender.Female,
-                animal.PosX,
-                animal.PosY);
-
-            // TODO decidere se far valere questa regola uguale per maschi e femmine
-            animal.SonsDone++;
-            otherGenderAllyNearby.SonsDone++;
+            var son = AnimalGenerator.GenerateAnimal(father: father, mother: mother);
+            father.NextYearCanReprouce += father.IntervalBetweenReproductions;
+            mother.NextYearCanReprouce += mother.IntervalBetweenReproductions;
 
             return son;
         }
 
-        internal bool CanCopulate(Animal animal, Animal otherGenderAnimal)
+        internal bool NeedsToReproduce(Animal animal)
         {
-            return NeedsToReproduce(animal) 
-                && NeedsToReproduce(otherGenderAnimal)
-                && animal.SonsDone < animal.Specie.MaxSons
-                && otherGenderAnimal.SonsDone < otherGenderAnimal.Specie.MaxSons;
+            return animal.Age >= animal.NextYearCanReprouce;
         }
 
         internal bool RandomMove(Animal who, TimeSpan elapsed)
@@ -145,7 +117,7 @@ namespace Darwinizator
             float xMoveAmount = _random.NextDouble() >= 0.5 ? 1 : -1;
             float yMoveAmount = _random.NextDouble() >= 0.5 ? 1 : -1;
 
-            var multiplier = (float)(who.Specie.MovementSpeed * elapsed.TotalSeconds);
+            var multiplier = (float)(who.MovementSpeed * elapsed.TotalSeconds);
 
             xMoveAmount *= multiplier;
             yMoveAmount *= multiplier;
@@ -186,7 +158,7 @@ namespace Darwinizator
             float xMoveAmount = 0;
             float yMoveAmount = 0;
 
-            var multiplier = (float)(who.Specie.MovementSpeed * elasped.TotalSeconds);
+            var multiplier = (float)(who.MovementSpeed * elasped.TotalSeconds);
 
             // Da migliorare enormemente
             if (who.PosX <= from.PosX)
@@ -232,7 +204,7 @@ namespace Darwinizator
 
         internal bool CouldBeOnAnotherAnimal(Animal animal, float newPosX, float newPosY)
         {
-            // TODO Ovviamente poi indicizzerò la griglia
+            // TODO Ovviamente poi indicizzerò la griglia perché così fa schifo
             foreach (var s in _population.Values)
             {
                 foreach (var a in s)
@@ -261,21 +233,24 @@ namespace Darwinizator
 
         internal bool IsDead(Animal animal)
         {
-            return animal.Age >= animal.Specie.Lifetime || animal.Health <= 0;
+            return animal.Age >= animal.Lifetime || animal.Health <= 0;
         }
 
-        internal Animal AllayInLineOfSight(Animal animal, bool? searchForOtherGender = null)
+        internal Animal AllayInLineOfSight(Animal animal, bool? searchForReproduction = null)
         {
-            var thisAnimalPopulation = _population[animal.Specie];
+            var thisAnimalPopulation = _population[animal.SpecieName];
             foreach (var a in thisAnimalPopulation)
             {
                 if (a == animal)
                     continue;
 
-                if (searchForOtherGender != null && a.Gender == animal.Gender)
+                if (searchForReproduction != null && a.Gender == animal.Gender)
                     continue;
 
-                if (Distance(animal, a) <= animal.Specie.SeeDistance)
+                if (searchForReproduction != null && !NeedsToReproduce(a))
+                    continue;
+
+                if (Distance(animal, a) <= animal.SeeDistance)
                 {
                     return a;
                 }
