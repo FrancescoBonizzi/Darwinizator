@@ -28,7 +28,7 @@ namespace Darwinizator
 
         internal int Distance(float aPosX, float aPosY, float bPosX, float bPosY)
         {
-            return Convert.ToInt32(
+            return (int)(
                 Math.Sqrt(
                     Math.Pow(aPosX - bPosX, 2)
                     + Math.Pow(aPosY - bPosY, 2)));
@@ -142,7 +142,7 @@ namespace Darwinizator
             if (!CouldBeOutOfWorld(who.PosY + yMoveAmount, _worldY))
                 return false;
 
-            if (!CouldBeOnAnotherAnimal(
+            if (CouldGoOnAnotherAnimal(
                 who,
                 who.PosX + xMoveAmount,
                 who.PosY + yMoveAmount))
@@ -202,7 +202,7 @@ namespace Darwinizator
             return pos < reference && pos >= 0;
         }
 
-        internal bool CouldBeOnAnotherAnimal(Animal animal, float newPosX, float newPosY)
+        internal bool CouldGoOnAnotherAnimal(Animal animal, float newPosX, float newPosY)
         {
             // TODO Ovviamente poi indicizzerò la griglia perché così fa schifo
             foreach (var s in _population.Values)
@@ -212,13 +212,15 @@ namespace Darwinizator
                     if (a == animal)
                         continue;
 
-                    // Soglia per determinare se due animali non possono essere sovrapposti
-                    if (Distance(a.PosX, a.PosY, newPosX, newPosY) <= 0.9f)
-                        return false;
+                    if ((Math.Abs(newPosX - a.PosX) <= 0.2f)
+                        && Math.Abs(newPosY - a.PosY) <= 0.2f)
+                    {
+                        return true;
+                    }
                 }
             }
 
-            return true;
+            return false;
         }
 
         internal bool IsEnoughCloseToInteract(Animal who, Animal withWho)

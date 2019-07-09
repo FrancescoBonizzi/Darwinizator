@@ -66,6 +66,9 @@ namespace Darwinizator
                 mother.PosX,
                 mother.PosY);
 
+            animal.Father = father;
+            animal.Mother = mother;
+            // TODO Come calcolo la generazione? Sommo padre, o madre, o entrambi +1?
             animal.IntervalBetweenReproductions = mother.IntervalBetweenReproductions;
 
             // TODO randomizza caratteristiche di specie con una funzione che parte dai genitori
