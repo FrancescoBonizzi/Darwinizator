@@ -2,8 +2,6 @@
 using FbonizziMonoGame.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Linq;
 
 namespace GUI
 {
@@ -11,26 +9,24 @@ namespace GUI
     {
         public GraphicsDeviceManager GraphicsDeviceManager { get; }
         private SpriteBatch _spriteBatch;
+
         private readonly Simulator _simulator;
+        private readonly HexToColorConverter _hexToColorConverter;
 
-        private readonly int _cellSize;
-
-        public DarwinatorRenderer(
-            Simulator simulator,
-            int cellSize)
+        public DarwinatorRenderer(Simulator simulator)
         {
             _simulator = simulator;
-            _cellSize = cellSize;
 
             GraphicsDeviceManager = new GraphicsDeviceManager(this)
             {
                 SupportedOrientations = DisplayOrientation.LandscapeLeft | DisplayOrientation.LandscapeRight
             };
 
-            GraphicsDeviceManager.PreferredBackBufferWidth = simulator.WorldXSize * _cellSize;
-            GraphicsDeviceManager.PreferredBackBufferHeight = simulator.WorldYSize * _cellSize;
+            GraphicsDeviceManager.PreferredBackBufferWidth = simulator.WorldXSize;
+            GraphicsDeviceManager.PreferredBackBufferHeight = simulator.WorldYSize;
 
             IsMouseVisible = true;
+            _hexToColorConverter = new HexToColorConverter();
         }
 
         protected override void LoadContent()
@@ -55,16 +51,9 @@ namespace GUI
             {
                 foreach (var animal in specie.Value)
                 {
-                    // TODO Ovviamente ognuno avrà il suo rettangolo,
-                    // fai un wrapper "sprite" per ogni oggetto del simulator
-                    // crearlo nuovo ogni giro è lentissimo
                     _spriteBatch.DrawRectangle(
-                        new Rectangle(
-                            (int)(animal.PosX * _cellSize),
-                            (int)(animal.PosY * _cellSize),
-                            _cellSize,
-                            _cellSize),
-                        animal.Color.ConvertToXnaColor());
+                        rectangleDefinition: animal.Mass.ToXnaRectangle(),
+                        fillColor: _hexToColorConverter.ConvertToXnaColor(animal.Color));
                 }
             }
 

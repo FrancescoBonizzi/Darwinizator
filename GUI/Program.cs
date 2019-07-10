@@ -8,13 +8,11 @@ namespace GUI
         [STAThread]
         static void Main()
         {
-            int simulationWorldWidth = 100;
-            int simulationWorldHeight = 100;
-
-            int cellSizePixel = 6; // Una cella nel mondo della simulazione è un rettangolo di cellSizePixel pixel rappresentato
+            const int simulationWorldWidth = 500;
+            const int simulationWorldHeight = 500;
 
             var simulator = new Simulator(simulationWorldWidth, simulationWorldHeight);
-            using (var game = new DarwinatorRenderer(simulator, cellSizePixel))
+            using (var game = new DarwinatorRenderer(simulator))
             {
                 game.Run();
             }

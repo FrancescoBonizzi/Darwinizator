@@ -20,7 +20,7 @@ namespace Darwinizator
             WorldXSize = worldXSize;
             WorldYSize = worldYSize;
 
-            var specieGenerator = new AnimalGenerator();
+            var specieGenerator = new Generator();
             Population = specieGenerator.InitializePopulation(
                 populationPerSpecie: 20,
                 worldXSize: WorldXSize,
@@ -85,22 +85,17 @@ namespace Darwinizator
                         }
                     }
 
-                    // If there is nothing interesting to do, move randomly
-                    if (!moved)
-                    {
-                        _evaluator.RandomMove(animal, elapsed);
-                    }
-
-
                     // * Attack
                     if (enemyNearby != null)
                     {
                         if (_evaluator.IsEnoughCloseToInteract(animal, enemyNearby))
                         {
-                            // The animal needs to defend himself
                             _evaluator.Attack(animal, enemyNearby);
                         }
                     }
+
+                    // Move randomly to feel alive
+                    _evaluator.RandomMove(animal, elapsed);
 
                     _evaluator.EvaluateAge(animal);
                 }

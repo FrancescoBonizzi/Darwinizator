@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Darwinizator
 {
-    public class AnimalGenerator
+    public class Generator
     {
         private static readonly Random _random = new Random();
 
@@ -63,12 +63,13 @@ namespace Darwinizator
                 father.SocialIstinctToOtherSpecies,
                 father.Color,
                 mother.Color,
-                mother.PosX,
-                mother.PosY);
+                (int)mother.Mass.PosX,
+                (int)mother.Mass.PosY);
 
             animal.Father = father;
             animal.Mother = mother;
-            // TODO Come calcolo la generazione? Sommo padre, o madre, o entrambi +1?
+
+            // TODO Come calcolo il numero di generazione? Sommo padre, o madre, o entrambi +1?
             animal.IntervalBetweenReproductions = mother.IntervalBetweenReproductions;
 
             // TODO randomizza caratteristiche di specie con una funzione che parte dai genitori
@@ -81,8 +82,8 @@ namespace Darwinizator
             SocialIstinctToOtherSpecies socialIstinctToOtherSpecies,
             string maleColor,
             string femaleColor,
-            float posX,
-            float posY)
+            int posX,
+            int posY)
         {
             var gender = _random.NextDouble() >= 0.5 ? Gender.Male : Gender.Female;
             var color = gender == Gender.Male ? maleColor : femaleColor;
@@ -93,20 +94,26 @@ namespace Darwinizator
                 Color = color,
                 SocialIstinctToOtherSpecies = socialIstinctToOtherSpecies,
                 Gender = gender,
-                PosX = posX,
-                PosY = posY,
                 Age = 0,
                 Father = null,
                 Mother = null,
                 NextYearCanReprouce = 5,
 
-                Lifetime = 16,
-                MovementSpeed = 30,
-                SeeDistance = 10,
+                Lifetime = 20,
+                MovementSpeed = 100,
+                SeeDistance = 100,
                 Health = 20,
                 AttackPower = 5,
                 DefensePower = 5,
-                IntervalBetweenReproductions = 5
+                IntervalBetweenReproductions = 5,
+                Mass = new Mass()
+                {
+                    PosX = posX,
+                    PosY = posY,
+                    Weight = 6,
+                    Width = 6,
+                    Height = 6
+                }
             };
         }
     }
