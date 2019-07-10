@@ -7,20 +7,45 @@ namespace Darwinizator
     public class Evaluator
     {
         private static readonly Random _random = new Random();
+        private readonly Generator _generator;
         private readonly Dictionary<string, List<Animal>> _population;
+        private readonly List<Animal>[,] _grid;
         private readonly int _worldX;
         private readonly int _worldY;
 
         private const float _positioningThreshold = 2f;
 
         public Evaluator(
+            Generator generator,
             Dictionary<string, List<Animal>> population,
             int worldX,
             int worldY)
         {
+            _generator = generator;
+
             _population = population;
             _worldX = worldX;
             _worldY = worldY;
+
+            _grid = new List<Animal>[_worldX, _worldY];
+
+            for (int x = 0; x < _worldX; ++x)
+            {
+                for (int y = 0; y < _worldY; ++y)
+                {
+                    _grid[x, y] = new List<Animal>();
+                }
+            }
+
+            // Grid cell division is approximated to integer number of PosX and PosY
+            foreach(var specie in population)
+            {
+                foreach(var animal in specie.Value)
+                {
+                    _grid[(int)animal.Mass.PosX, (int)animal.Mass.PosY].Add(animal);
+                }
+            }
+
         }
 
         internal float Distance(Animal a, Animal b)
@@ -38,6 +63,10 @@ namespace Darwinizator
 
         internal Animal FirstEnemyInLineOfSight(Animal animal)
         {
+            // TODO Non guardare più in tutta la population, 
+            // ma solo in quelli a x celle in quadrato dal line of sight
+            // _grid[(int)animal.Mass.PosX, (int)animal.Mass.PosY]
+
             foreach (var specie in _population)
             {
                 // An animal of the same specie isn't an enemy
@@ -96,7 +125,7 @@ namespace Darwinizator
             float xMoveAmount,
             float yMoveAmount)
         {
-            var newPosX = ClampToWorldBounds(who.Mass.PosX + xMoveAmount, _worldX - who.Mass.Weight);
+            var newPosX = ClampToWorldBounds(who.Mass.PosX + xMoveAmount, _worldX - who.Mass.Width);
             var newPosY = ClampToWorldBounds(who.Mass.PosY + yMoveAmount, _worldY - who.Mass.Height);
 
             if (CouldGoOnAnotherAnimal(
@@ -107,8 +136,12 @@ namespace Darwinizator
                 return false;
             }
 
+            _grid[(int)who.Mass.PosX, (int)who.Mass.PosY].Remove(who);
+
             who.Mass.PosX = newPosX;
             who.Mass.PosY = newPosY;
+
+            _grid[(int)who.Mass.PosX, (int)who.Mass.PosY].Add(who);
 
             return true;
         }
@@ -118,11 +151,18 @@ namespace Darwinizator
             if (father.SpecieName != mother.SpecieName)
                 throw new Exception("Cannot copulate between different species");
 
-            var son = Generator.GenerateAnimal(father: father, mother: mother);
+            var son = _generator.GenerateAnimal(father: father, mother: mother);
             father.NextYearCanReprouce += father.IntervalBetweenReproductions;
             mother.NextYearCanReprouce += mother.IntervalBetweenReproductions;
 
+            _grid[(int)son.Mass.PosX, (int)son.Mass.PosY].Add(son);
+
             return son;
+        }
+
+        internal void Kill(Animal deadAnimal)
+        {
+            _grid[(int)deadAnimal.Mass.PosX, (int)deadAnimal.Mass.PosY].Remove(deadAnimal);
         }
 
         internal bool NeedsToReproduce(Animal animal)
@@ -130,7 +170,7 @@ namespace Darwinizator
             return animal.Age >= animal.NextYearCanReprouce;
         }
 
-        internal void RandomMove(Animal who, TimeSpan elapsed)
+        internal bool RandomMove(Animal who, TimeSpan elapsed)
         {
             float xMoveAmount = _random.NextDouble() >= 0.5 ? 1 : -1;
             float yMoveAmount = _random.NextDouble() >= 0.5 ? 1 : -1;
@@ -140,7 +180,7 @@ namespace Darwinizator
             xMoveAmount *= multiplier;
             yMoveAmount *= multiplier;
 
-            SetNewPosition(who, xMoveAmount, yMoveAmount);
+            return SetNewPosition(who, xMoveAmount, yMoveAmount);
         }
 
         internal float ClampToWorldBounds(float value, float referenceValue)
@@ -210,19 +250,13 @@ namespace Darwinizator
                 Height = animal.Mass.Height
             };
 
-            // TODO Ovviamente poi indicizzerò la griglia perché scorrerli tutti fa schifo
-            foreach (var s in _population.Values)
+            foreach(var animalInCell in _grid[(int)newPosX, (int)newPosY])
             {
-                foreach (var a in s)
-                {
-                    if (a == animal)
-                        continue;
+                if (animalInCell == animal)
+                    continue;
 
-                    if (newMass.Intersects(a.Mass, _positioningThreshold))
-                    {
-                        return true;
-                    }
-                }
+                if (newMass.Intersects(animalInCell.Mass, _positioningThreshold))
+                    return true;
             }
 
             return false;
@@ -245,6 +279,10 @@ namespace Darwinizator
 
         internal Animal AllayInLineOfSight(Animal animal, bool? searchForReproduction = null)
         {
+            // TODO Non guardare più in tutta la population, 
+            // ma solo in quelli a x celle in quadrato dal line of sight
+            // _grid[(int)animal.Mass.PosX, (int)animal.Mass.PosY]
+
             var thisAnimalPopulation = _population[animal.SpecieName];
             foreach (var a in thisAnimalPopulation)
             {

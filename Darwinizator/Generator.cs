@@ -7,6 +7,7 @@ namespace Darwinizator
     public class Generator
     {
         private static readonly Random _random = new Random();
+        private int _animalSequenceNumber = 0;
 
         public Dictionary<string, List<Animal>> InitializePopulation(
             int populationPerSpecie,
@@ -54,7 +55,7 @@ namespace Darwinizator
             return population;
         }
 
-        public static Animal GenerateAnimal(
+        public Animal GenerateAnimal(
             Animal father,
             Animal mother)
         {
@@ -77,7 +78,7 @@ namespace Darwinizator
             return animal;
         }
 
-        public static Animal GenerateAnimal(
+        public Animal GenerateAnimal(
             string specieName,
             SocialIstinctToOtherSpecies socialIstinctToOtherSpecies,
             string maleColor,
@@ -87,6 +88,8 @@ namespace Darwinizator
         {
             var gender = _random.NextDouble() >= 0.5 ? Gender.Male : Gender.Female;
             var color = gender == Gender.Male ? maleColor : femaleColor;
+
+            ++_animalSequenceNumber;
 
             return new Animal()
             {
@@ -113,7 +116,8 @@ namespace Darwinizator
                     Weight = 6,
                     Width = 6,
                     Height = 6
-                }
+                },
+                Name = $"A{_animalSequenceNumber}"
             };
         }
     }

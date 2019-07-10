@@ -9,9 +9,11 @@ namespace GUI
     {
         public GraphicsDeviceManager GraphicsDeviceManager { get; }
         private SpriteBatch _spriteBatch;
-
+        private SpriteFont _font;
         private readonly Simulator _simulator;
         private readonly HexToColorConverter _hexToColorConverter;
+
+        private bool _debugMode = false;
 
         public DarwinatorRenderer(Simulator simulator)
         {
@@ -33,6 +35,7 @@ namespace GUI
         {
             Content.RootDirectory = "Content";
             _spriteBatch = new SpriteBatch(GraphicsDevice);
+            _font = Content.Load<SpriteFont>("TextFont");
         }
 
         protected override void Update(GameTime gameTime)
@@ -54,6 +57,16 @@ namespace GUI
                     _spriteBatch.DrawRectangle(
                         rectangleDefinition: animal.Mass.ToXnaRectangle(),
                         fillColor: _hexToColorConverter.ConvertToXnaColor(animal.Color));
+
+                    if (_debugMode)
+                    {
+                        // TODO fai hover
+                        _spriteBatch.DrawString(
+                            _font, 
+                            animal.Name, 
+                            new Vector2(animal.Mass.PosX, animal.Mass.PosY), 
+                            Color.White);
+                    }
                 }
             }
 

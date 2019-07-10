@@ -11,6 +11,7 @@
         public Animal Mother { get; set; }
         public int NextYearCanReprouce { get; set; }
         public Mass Mass { get; set; }
+        public string Name { get; set; }
 
         // Survival/heritable charateristics
         public float Lifetime { get; set; }

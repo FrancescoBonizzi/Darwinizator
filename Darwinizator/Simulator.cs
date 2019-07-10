@@ -1,6 +1,7 @@
 ﻿using Darwinizator.Domain;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Darwinizator
 {
@@ -8,6 +9,9 @@ namespace Darwinizator
     {
         public int WorldXSize { get; }
         public int WorldYSize { get; }
+
+        private readonly Generator _specieGenerator;
+
         public int[,] World { get; set; }
         public Dictionary<string, List<Animal>> Population { get; set; }
 
@@ -20,13 +24,13 @@ namespace Darwinizator
             WorldXSize = worldXSize;
             WorldYSize = worldYSize;
 
-            var specieGenerator = new Generator();
-            Population = specieGenerator.InitializePopulation(
-                populationPerSpecie: 20,
+            _specieGenerator = new Generator();
+            Population = _specieGenerator.InitializePopulation(
+                populationPerSpecie: 30,
                 worldXSize: WorldXSize,
                 worldYSize: WorldYSize);
 
-            _evaluator = new Evaluator(Population, WorldXSize, WorldYSize);
+            _evaluator = new Evaluator(_specieGenerator, Population, WorldXSize, WorldYSize);
         }
 
         public void Update(TimeSpan elapsed)
@@ -37,6 +41,10 @@ namespace Darwinizator
 
                 foreach (var animal in specie.Value)
                 {
+                    // He could die due to another animal attack
+                    if (_evaluator.IsDead(animal))
+                        continue;
+
                     // * Movement
                     bool moved = false;
 
@@ -91,16 +99,29 @@ namespace Darwinizator
                         if (_evaluator.IsEnoughCloseToInteract(animal, enemyNearby))
                         {
                             _evaluator.Attack(animal, enemyNearby);
+                            if (_evaluator.IsDead(animal))
+                            {
+                                continue;
+                            }
                         }
                     }
 
                     // Move randomly to feel alive
-                    _evaluator.RandomMove(animal, elapsed);
+                    bool randomMoved = moved;
+                    randomMoved = _evaluator.RandomMove(animal, elapsed);
 
                     _evaluator.EvaluateAge(animal);
                 }
 
-                specie.Value.RemoveAll(a => _evaluator.IsDead(a));
+                for (int a = specie.Value.Count - 1; a >= 0; --a)
+                {
+                    if (_evaluator.IsDead(specie.Value[a]))
+                    {
+                        _evaluator.Kill(specie.Value[a]);
+                        specie.Value.RemoveAt(a);
+                    }
+                }
+
                 specie.Value.AddRange(newGeneration);
             }
         }

@@ -6,7 +6,7 @@ namespace GUI
     internal static class Program
     {
         [STAThread]
-        static void Main()
+        private static void Main()
         {
             const int simulationWorldWidth = 500;
             const int simulationWorldHeight = 500;
