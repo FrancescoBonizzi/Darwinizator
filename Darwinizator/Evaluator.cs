@@ -23,14 +23,14 @@ namespace Darwinizator
             _worldY = worldY;
         }
 
-        internal int Distance(Animal a, Animal b)
+        internal float Distance(Animal a, Animal b)
         {
             return Distance(a.Mass.PosX, a.Mass.PosY, b.Mass.PosX, b.Mass.PosY);
         }
 
-        internal int Distance(float aPosX, float aPosY, float bPosX, float bPosY)
+        internal float Distance(float aPosX, float aPosY, float bPosX, float bPosY)
         {
-            return (int)(
+            return (float)(
                 Math.Sqrt(
                     Math.Pow(aPosX - bPosX, 2)
                     + Math.Pow(aPosY - bPosY, 2)));
