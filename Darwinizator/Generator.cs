@@ -104,7 +104,7 @@ namespace Darwinizator
 
                 Lifetime = 20,
                 MovementSpeed = 100,
-                SeeDistance = 100,
+                SeeDistance = 1000,
                 Health = 20,
                 AttackPower = 5,
                 DefensePower = 5,

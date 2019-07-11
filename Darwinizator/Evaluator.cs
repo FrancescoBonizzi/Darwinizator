@@ -38,9 +38,9 @@ namespace Darwinizator
             }
 
             // Grid cell division is approximated to integer number of PosX and PosY
-            foreach(var specie in population)
+            foreach (var specie in population)
             {
-                foreach(var animal in specie.Value)
+                foreach (var animal in specie.Value)
                 {
                     _grid[(int)animal.Mass.PosX, (int)animal.Mass.PosY].Add(animal);
                 }
@@ -55,18 +55,11 @@ namespace Darwinizator
 
         internal float Distance(float aPosX, float aPosY, float bPosX, float bPosY)
         {
-            return (float)(
-                Math.Sqrt(
-                    Math.Pow(aPosX - bPosX, 2)
-                    + Math.Pow(aPosY - bPosY, 2)));
+            return (float)(Math.Pow(aPosX - bPosX, 2) + Math.Pow(aPosY - bPosY, 2));
         }
 
         internal Animal FirstEnemyInLineOfSight(Animal animal)
         {
-            // TODO Non guardare più in tutta la population, 
-            // ma solo in quelli a x celle in quadrato dal line of sight
-            // _grid[(int)animal.Mass.PosX, (int)animal.Mass.PosY]
-
             foreach (var specie in _population)
             {
                 // An animal of the same specie isn't an enemy
@@ -250,7 +243,7 @@ namespace Darwinizator
                 Height = animal.Mass.Height
             };
 
-            foreach(var animalInCell in _grid[(int)newPosX, (int)newPosY])
+            foreach (var animalInCell in _grid[(int)newPosX, (int)newPosY])
             {
                 if (animalInCell == animal)
                     continue;
@@ -279,10 +272,6 @@ namespace Darwinizator
 
         internal Animal AllayInLineOfSight(Animal animal, bool? searchForReproduction = null)
         {
-            // TODO Non guardare più in tutta la population, 
-            // ma solo in quelli a x celle in quadrato dal line of sight
-            // _grid[(int)animal.Mass.PosX, (int)animal.Mass.PosY]
-
             var thisAnimalPopulation = _population[animal.SpecieName];
             foreach (var a in thisAnimalPopulation)
             {
