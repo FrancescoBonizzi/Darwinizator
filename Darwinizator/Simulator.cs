@@ -1,7 +1,6 @@
 ﻿using Darwinizator.Domain;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Darwinizator
 {
@@ -10,10 +9,11 @@ namespace Darwinizator
         public int WorldXSize { get; }
         public int WorldYSize { get; }
 
-        private readonly Generator _specieGenerator;
+        private readonly Generator _generator;
 
         public int[,] World { get; set; }
         public Dictionary<string, List<Animal>> Population { get; set; }
+        public List<Vegetable> Vegetables { get; set; }
 
         private readonly Evaluator _evaluator;
 
@@ -24,13 +24,12 @@ namespace Darwinizator
             WorldXSize = worldXSize;
             WorldYSize = worldYSize;
 
-            _specieGenerator = new Generator();
-            Population = _specieGenerator.InitializePopulation(
-                populationPerSpecie: 30,
-                worldXSize: WorldXSize,
-                worldYSize: WorldYSize);
+            _generator = new Generator(WorldXSize, WorldYSize);
+            Population = _generator.InitializePopulation(populationPerSpecie: 35);
 
-            _evaluator = new Evaluator(_specieGenerator, Population, WorldXSize, WorldYSize);
+          //  Vegetables = _generator.InitializeVegetables();
+
+            _evaluator = new Evaluator(_generator, Population, WorldXSize, WorldYSize);
         }
 
         public void Update(TimeSpan elapsed)
