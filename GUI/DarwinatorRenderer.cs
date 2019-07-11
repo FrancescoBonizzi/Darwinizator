@@ -3,6 +3,7 @@ using FbonizziMonoGame.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 
 namespace GUI
 {
@@ -16,6 +17,7 @@ namespace GUI
 
         private bool _debugMode = false;
         private bool _paused = false;
+        private bool _rendering = true;
 
         private KeyboardState _lastKey;
 
@@ -47,6 +49,11 @@ namespace GUI
             var keyboardState = Keyboard.GetState();
             if (keyboardState.IsKeyUp(Keys.P) && _lastKey.IsKeyDown(Keys.P))
                 _paused = !_paused;
+            else if (keyboardState.IsKeyUp(Keys.R) && _lastKey.IsKeyDown(Keys.R))
+                _rendering = !_rendering;
+            else if (keyboardState.IsKeyUp(Keys.D) && _lastKey.IsKeyDown(Keys.D))
+                _debugMode = !_debugMode;
+
             _lastKey = keyboardState;
 
             if (_paused)
@@ -59,6 +66,20 @@ namespace GUI
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
+
+            if (!_rendering)
+            {
+                _spriteBatch.Begin();
+                _spriteBatch.DrawString(
+                    _font,
+                    "Rendering disabled " +
+                    Environment.NewLine +
+                    "Press 'R' to switch",
+                    new Vector2(100, 100),
+                    Color.Yellow);
+                _spriteBatch.End();
+                return;
+            }
 
             _spriteBatch.Begin();
 
@@ -74,9 +95,9 @@ namespace GUI
                     {
                         // TODO fai hover
                         _spriteBatch.DrawString(
-                            _font, 
-                            animal.Name, 
-                            new Vector2(animal.Mass.PosX, animal.Mass.PosY), 
+                            _font,
+                            animal.Name,
+                            new Vector2(animal.Mass.PosX, animal.Mass.PosY),
                             Color.White);
                     }
                 }
