@@ -2,6 +2,7 @@
 using FbonizziMonoGame.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace GUI
 {
@@ -14,6 +15,9 @@ namespace GUI
         private readonly HexToColorConverter _hexToColorConverter;
 
         private bool _debugMode = false;
+        private bool _paused = false;
+
+        private KeyboardState _lastKey;
 
         public DarwinatorRenderer(Simulator simulator)
         {
@@ -40,6 +44,14 @@ namespace GUI
 
         protected override void Update(GameTime gameTime)
         {
+            var keyboardState = Keyboard.GetState();
+            if (keyboardState.IsKeyUp(Keys.P) && _lastKey.IsKeyDown(Keys.P))
+                _paused = !_paused;
+            _lastKey = keyboardState;
+
+            if (_paused)
+                return;
+
             _simulator.Update(gameTime.ElapsedGameTime);
             base.Update(gameTime);
         }
