@@ -15,6 +15,8 @@ namespace Darwinizator
         public Dictionary<string, List<Animal>> Population { get; set; }
         public List<Vegetable> Vegetables { get; set; }
 
+        private TimeSpan _elapsedSinceLastVegetableGeneration;
+
         private readonly Evaluator _evaluator;
 
         public Simulator(
@@ -35,10 +37,14 @@ namespace Darwinizator
                 Vegetables,
                 WorldXSize,
                 WorldYSize);
+
+            _elapsedSinceLastVegetableGeneration = TimeSpan.Zero;
         }
 
         public void Update(TimeSpan elapsed)
         {
+            _elapsedSinceLastVegetableGeneration += elapsed;
+
             foreach (var specie in Population)
             {
                 var newGeneration = new List<Animal>();
@@ -153,8 +159,12 @@ namespace Darwinizator
 
             Vegetables.RemoveAll(v => v.IsEaten);
 
-            // TODO possa farlo anche a tempo
-            Vegetables.AddRange(_generator.SpawnVegetables(StartingValues.NumberOfVegetables - Vegetables.Count));
+            if (_elapsedSinceLastVegetableGeneration > StartingValues.IntervalForVegetablesGeneration)
+            {
+                Vegetables.AddRange(_generator.SpawnVegetables(StartingValues.NumberOfVegetables - Vegetables.Count));
+                _elapsedSinceLastVegetableGeneration = TimeSpan.Zero;
+            }
+
         }
 
     }

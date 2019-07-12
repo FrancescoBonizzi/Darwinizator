@@ -1,4 +1,6 @@
-﻿namespace Darwinizator
+﻿using System;
+
+namespace Darwinizator
 {
     public static class StartingValues
     {
@@ -17,5 +19,6 @@
         public const int SeeDistance = 10000;
         public const int AttackPower = 5;
         public const int DefensePower = 5;
+        public static readonly TimeSpan IntervalForVegetablesGeneration = TimeSpan.FromSeconds(15);
     }
 }
