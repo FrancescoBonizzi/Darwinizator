@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Darwinizator.Domain;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 
@@ -11,6 +12,22 @@ namespace GUI
         public HexToColorConverter()
         {
             _conversionsCache = new Dictionary<string, Color>();
+        }
+
+        /// <summary>
+        /// Dying animals fade out
+        /// </summary>
+        /// <param name="animal"></param>
+        /// <returns></returns>
+        public Color CalculateColor(Animal animal)
+        {
+            var startingColor = ConvertToXnaColor(animal.Color);
+
+            var alpha = FbonizziMonoGame.Numbers.MapValueFromIntervalToInterval(
+                animal.Energy, 0, animal.MaximumEnergy,
+                0f, 1f);
+
+            return startingColor * alpha;
         }
 
         public Color ConvertToXnaColor(string hexString)

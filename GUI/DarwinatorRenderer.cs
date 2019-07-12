@@ -96,7 +96,7 @@ namespace GUI
                 {
                     _spriteBatch.DrawRectangle(
                         rectangleDefinition: animal.Mass.ToXnaRectangle(),
-                        fillColor: _hexToColorConverter.ConvertToXnaColor(animal.Color));
+                        fillColor: _hexToColorConverter.CalculateColor(animal));
 
                     if (_debugMode)
                     {

@@ -78,8 +78,7 @@ namespace Darwinizator
                                 if (_evaluator.IsEnoughCloseToInteract(animal, enemyNearby))
                                 {
                                     _evaluator.Attack(animal, enemyNearby);
-                                    _evaluator.EvaluateAttackEnergyCost(animal);
-
+   
                                     if (_evaluator.IsDead(enemyNearby))
                                     {
                                         _evaluator.Eat(animal, enemyNearby);

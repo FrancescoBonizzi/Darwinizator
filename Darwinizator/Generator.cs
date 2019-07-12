@@ -169,13 +169,12 @@ namespace Darwinizator
                 Lifetime = StartingValues.Lifetime,
                 MovementSpeed = StartingValues.MovementSpeed,
                 SeeDistance = StartingValues.SeeDistance,
-                Health = StartingValues.Health,
+                
                 AttackPower = StartingValues.AttackPower,
                 DefensePower = StartingValues.DefensePower,
                 IntervalBetweenReproductions = StartingValues.IntervalBetweenReproducions,
-
                 MaximumEnergy = StartingValues.MaximumEnergy,
-                EnergyAmountToSearchForFood = StartingValues.EnergyAmountToSearchForFood,
+                EnergyAmountToSearchForFood = StartingValues.EnergyAmountToStartSearchingForFood,
                 Mass = new Mass()
                 {
                     PosX = posX,

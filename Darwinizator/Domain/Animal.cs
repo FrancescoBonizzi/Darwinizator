@@ -21,7 +21,7 @@
         public int AttackPower { get; set; }
         public int DefensePower { get; set; }
         public int IntervalBetweenReproductions { get; set; }
-        public int Health { get; set; }
+        public int MaximumHealth { get; set; }
         public int MaximumEnergy { get; set; }
         public int EnergyAmountToSearchForFood { get; set; }
 

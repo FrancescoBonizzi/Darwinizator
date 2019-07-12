@@ -261,13 +261,16 @@ namespace Darwinizator
             if (smash < 0)
             {
                 // If defense is bigger, attaccker gets hit
-                attacker.Health += smash;
+                attacker.Energy += smash;
             }
             else if (smash > 0)
             {
                 // If attack is bigger, attaccked gets hit
-                attacked.Health -= smash;
+                attacked.Energy -= smash;
             }
+
+            EvaluateAttackEnergyCost(attacker);
+            EvaluateAttackEnergyCost(attacked);
         }
 
         internal void Eat(Animal animal, Vegetable vegetable)
@@ -286,7 +289,7 @@ namespace Darwinizator
                 animal.Energy = animal.MaximumEnergy;
 
             // AnotherAnimal disappear
-            anotherAnimal.Health = -10;
+            anotherAnimal.Energy = -10;
         }
 
         internal bool CouldGoOnAnotherAnimal(Animal animal, float newPosX, float newPosY)
@@ -324,7 +327,6 @@ namespace Darwinizator
         internal bool IsDead(Animal animal)
         {
             return animal.Age >= animal.Lifetime
-                || animal.Health <= 0
                 || animal.Energy <= 0;
         }
 
