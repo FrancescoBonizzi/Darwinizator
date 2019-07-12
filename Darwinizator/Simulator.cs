@@ -18,6 +18,8 @@ namespace Darwinizator
         private TimeSpan _elapsedSinceLastVegetableGeneration;
 
         private readonly Evaluator _evaluator;
+        public int DeadCarnivorousNumber { get; private set; } = 0;
+        public int DeadHerbivoreNumber { get; private set; } = 0;
 
         public Simulator(
             int worldXSize,
@@ -149,8 +151,12 @@ namespace Darwinizator
                 {
                     if (_evaluator.IsDead(specie.Value[a]))
                     {
+                        if (specie.Value[a].Diet == Diet.Carnivorous)
+                            DeadCarnivorousNumber++;
+                        else DeadHerbivoreNumber++;
+
                         _evaluator.Kill(specie.Value[a]);
-                        specie.Value.RemoveAt(a);
+                         specie.Value.RemoveAt(a);
                     }
                 }
 

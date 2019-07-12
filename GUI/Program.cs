@@ -12,9 +12,15 @@ namespace GUI
             const int simulationWorldHeight = 500;
 
             var simulator = new Simulator(simulationWorldWidth, simulationWorldHeight);
-            using (var game = new DarwinatorRenderer(simulator))
+
+            using (var infosForm = new Infos(simulator))
             {
-                game.Run();
+                infosForm.Show();
+
+                using (var game = new DarwinatorRenderer(simulator))
+                {
+                    game.Run();
+                }
             }
         }
     }
