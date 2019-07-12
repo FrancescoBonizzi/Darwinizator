@@ -319,9 +319,9 @@ namespace Darwinizator
             return who.Mass.Intersects(withWho.Mass);
         }
 
-        internal void EvaluateAge(Animal animal)
+        internal void EvaluateAge(IWithAge lifeBeing)
         {
-            animal.Age += 0.01f;
+            lifeBeing.Age += 0.01f;
         }
 
         internal bool IsDead(Animal animal)

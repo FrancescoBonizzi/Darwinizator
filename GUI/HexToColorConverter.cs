@@ -30,6 +30,30 @@ namespace GUI
             return startingColor * alpha;
         }
 
+        /// <summary>
+        /// New vegetables fade in
+        /// </summary>
+        /// <param name="vegetable"></param>
+        /// <returns></returns>
+        public Color CalculateColor(Vegetable vegetable)
+        {
+            var startingColor = ConvertToXnaColor(vegetable.Color);
+
+            float alpha = 0f;
+            if (vegetable.Age <= 0.5f)
+            {
+                alpha = FbonizziMonoGame.Numbers.MapValueFromIntervalToInterval(
+                    vegetable.Age, 0f, 0.5f,
+                    0f, 1f);
+            }
+            else
+            {
+                alpha = 1f;
+            }
+
+            return startingColor * alpha;
+        }
+
         public Color ConvertToXnaColor(string hexString)
         {
             if (_conversionsCache.ContainsKey(hexString))

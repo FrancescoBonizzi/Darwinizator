@@ -157,7 +157,12 @@ namespace Darwinizator
                 specie.Value.AddRange(newGeneration);
             }
 
-            Vegetables.RemoveAll(v => v.IsEaten);
+            for(int v = Vegetables.Count -1; v >= 0; --v)
+            {
+                _evaluator.EvaluateAge(Vegetables[v]);
+                if (Vegetables[v].IsEaten)
+                    Vegetables.RemoveAt(v);
+            }
 
             if (_elapsedSinceLastVegetableGeneration > StartingValues.IntervalForVegetablesGeneration)
             {

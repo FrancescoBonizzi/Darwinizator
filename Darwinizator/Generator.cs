@@ -111,7 +111,9 @@ namespace Darwinizator
                         Width = 2,
                         Height = 2
                     },
-                    IsEaten = false
+                    Age = 0,
+                    IsEaten = false,
+                    Color = "228b22"
                 });
             }
 
@@ -169,7 +171,7 @@ namespace Darwinizator
                 Lifetime = StartingValues.Lifetime,
                 MovementSpeed = StartingValues.MovementSpeed,
                 SeeDistance = StartingValues.SeeDistance,
-                
+
                 AttackPower = StartingValues.AttackPower,
                 DefensePower = StartingValues.DefensePower,
                 IntervalBetweenReproductions = StartingValues.IntervalBetweenReproducions,

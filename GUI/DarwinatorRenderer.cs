@@ -86,8 +86,8 @@ namespace GUI
             foreach(var veg in _simulator.Vegetables)
             {
                 _spriteBatch.DrawRectangle(
-                    veg.Mass.ToXnaRectangle(),
-                    Color.ForestGreen);
+                     rectangleDefinition: veg.Mass.ToXnaRectangle(),
+                     fillColor: _hexToColorConverter.CalculateColor(veg));
             }
 
             foreach (var specie in _simulator.Population)

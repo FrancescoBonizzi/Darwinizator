@@ -1,6 +1,6 @@
 ﻿namespace Darwinizator.Domain
 {
-    public class Animal : IWithMass
+    public class Animal : IWithMass, IWithAge
     {
         public string SpecieName { get; set; }
         public string Color { get; set; }
