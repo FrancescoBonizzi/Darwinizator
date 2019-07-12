@@ -28,11 +28,15 @@ namespace Darwinizator
             // To avoid spawing animal on top of each other
             var availableCoordinates = new List<(int X, int Y)>();
             for (int x = 0; x < _worldXSize; ++x)
+            {
                 for (int y = 0; y < _worldYSize; ++y)
+                {
                     availableCoordinates.Add((x, y));
+                }
+            }
 
             {
-                const SocialIstinctToOtherSpecies socialInstinct = SocialIstinctToOtherSpecies.Aggressive;
+                const Diet socialInstinct = Diet.Carnivorous;
                 var specieName = socialInstinct.ToString();
                 var animals = new List<Animal>();
                 for (int i = 0; i < populationPerSpecie; ++i)
@@ -54,7 +58,7 @@ namespace Darwinizator
             }
 
             {
-                const SocialIstinctToOtherSpecies socialInstinct = SocialIstinctToOtherSpecies.Defensive;
+                const Diet socialInstinct = Diet.Herbivore;
                 var specieName = socialInstinct.ToString();
                 var animals = new List<Animal>();
                 for (int i = 0; i < populationPerSpecie; ++i)
@@ -66,7 +70,7 @@ namespace Darwinizator
                     animals.Add(GenerateAnimal(
                         specieName: specieName,
                         socialIstinctToOtherSpecies: socialInstinct,
-                        maleColor: "51ff00",
+                        maleColor: "006eff",
                         femaleColor: "00fff2",
                         X,
                         Y));
@@ -78,13 +82,49 @@ namespace Darwinizator
             return population;
         }
 
+        internal List<Vegetable> SpawnVegetables(int howMany)
+        {
+            var vegetables = new List<Vegetable>();
+
+            // To avoid vegetables animal on top of each other
+            var availableCoordinates = new List<(int X, int Y)>();
+            for (int x = 0; x < _worldXSize; ++x)
+            {
+                for (int y = 0; y < _worldYSize; ++y)
+                {
+                    availableCoordinates.Add((x, y));
+                }
+            }
+
+            for (int i = 0; i < howMany; ++i)
+            {
+                var choosenCoordinatesIndex = _random.Next(0, availableCoordinates.Count);
+                var (X, Y) = availableCoordinates[choosenCoordinatesIndex];
+                availableCoordinates.RemoveAt(choosenCoordinatesIndex);
+
+                vegetables.Add(new Vegetable()
+                {
+                    Mass = new Mass()
+                    {
+                        PosX = X,
+                        PosY = Y,
+                        Width = 2,
+                        Height = 2
+                    },
+                    IsEaten = false
+                });
+            }
+
+            return vegetables;
+        }
+
         public Animal GenerateAnimal(
             Animal father,
             Animal mother)
         {
             var animal = GenerateAnimal(
                 father.SpecieName,
-                father.SocialIstinctToOtherSpecies,
+                father.Diet,
                 father.Color,
                 mother.Color,
                 (int)mother.Mass.PosX,
@@ -103,7 +143,7 @@ namespace Darwinizator
 
         public Animal GenerateAnimal(
             string specieName,
-            SocialIstinctToOtherSpecies socialIstinctToOtherSpecies,
+            Diet socialIstinctToOtherSpecies,
             string maleColor,
             string femaleColor,
             int posX,
@@ -118,25 +158,28 @@ namespace Darwinizator
             {
                 SpecieName = specieName,
                 Color = color,
-                SocialIstinctToOtherSpecies = socialIstinctToOtherSpecies,
+                Diet = socialIstinctToOtherSpecies,
                 Gender = gender,
                 Age = 0,
                 Father = null,
                 Mother = null,
-                NextYearCanReprouce = 5,
+                NextAgeCanReprouce = StartingValues.NextAgeCanReproduce,
+                Energy = StartingValues.MaximumEnergy,
 
-                Lifetime = 20,
-                MovementSpeed = 100,
-                SeeDistance = 1000,
-                Health = 20,
-                AttackPower = 5,
-                DefensePower = 5,
-                IntervalBetweenReproductions = 5,
+                Lifetime = StartingValues.Lifetime,
+                MovementSpeed = StartingValues.MovementSpeed,
+                SeeDistance = StartingValues.SeeDistance,
+                Health = StartingValues.Health,
+                AttackPower = StartingValues.AttackPower,
+                DefensePower = StartingValues.DefensePower,
+                IntervalBetweenReproductions = StartingValues.IntervalBetweenReproducions,
+
+                MaximumEnergy = StartingValues.MaximumEnergy,
+                EnergyAmountToSearchForFood = StartingValues.EnergyAmountToSearchForFood,
                 Mass = new Mass()
                 {
                     PosX = posX,
                     PosY = posY,
-                    Weight = 6,
                     Width = 6,
                     Height = 6
                 },

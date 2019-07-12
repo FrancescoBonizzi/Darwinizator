@@ -1,9 +1,8 @@
 ﻿namespace Darwinizator.Domain
 {
-    public class Vegetable
+    public class Vegetable : IWithMass
     {
-        public float PosX { get; set; }
-        public float PosY { get; set; }
+        public Mass Mass { get; set; }
         public bool IsEaten { get; set; }
     }
 }

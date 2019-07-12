@@ -10,6 +10,7 @@ namespace Darwinizator
         private readonly Generator _generator;
         private readonly Dictionary<string, List<Animal>> _population;
         private readonly List<Animal>[,] _grid;
+        private readonly List<Vegetable> _vegetables;
         private readonly int _worldX;
         private readonly int _worldY;
 
@@ -18,10 +19,12 @@ namespace Darwinizator
         public Evaluator(
             Generator generator,
             Dictionary<string, List<Animal>> population,
+            List<Vegetable> vegetables,
             int worldX,
             int worldY)
         {
             _generator = generator;
+            _vegetables = vegetables;
 
             _population = population;
             _worldX = worldX;
@@ -48,7 +51,7 @@ namespace Darwinizator
 
         }
 
-        internal float Distance(Animal a, Animal b)
+        internal float Distance(IWithMass a, IWithMass b)
         {
             return Distance(a.Mass.PosX, a.Mass.PosY, b.Mass.PosX, b.Mass.PosY);
         }
@@ -69,8 +72,14 @@ namespace Darwinizator
                 foreach (var otherAnimal in specie.Value)
                 {
                     // A defensive enemy isn't an enemy if you are defensive
-                    if (animal.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Defensive
-                        && otherAnimal.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Defensive)
+                    if (animal.Diet == Diet.Herbivore
+                        && otherAnimal.Diet == Diet.Herbivore)
+                    {
+                        continue;
+                    }
+
+                    if (animal.Diet == Diet.Carnivorous
+                        && otherAnimal.Diet == Diet.Carnivorous)
                     {
                         continue;
                     }
@@ -85,7 +94,23 @@ namespace Darwinizator
             return null;
         }
 
-        internal bool Approach(Animal who, Animal to, TimeSpan elapsed)
+        internal Vegetable FirstVegetableInLineOfSight(Animal animal)
+        {
+            foreach(var veg in _vegetables)
+            {
+                if (veg.IsEaten)
+                    continue;
+
+                if (Distance(animal, veg) <= animal.SeeDistance)
+                {
+                    return veg;
+                }
+            }
+
+            return null;
+        }
+
+        internal bool Approach(Animal who, IWithMass to, TimeSpan elapsed)
         {
             float xMoveAmount = 0;
             float yMoveAmount = 0;
@@ -145,12 +170,24 @@ namespace Darwinizator
                 throw new Exception("Cannot copulate between different species");
 
             var son = _generator.GenerateAnimal(father: father, mother: mother);
-            father.NextYearCanReprouce += father.IntervalBetweenReproductions;
-            mother.NextYearCanReprouce += mother.IntervalBetweenReproductions;
+            father.NextAgeCanReprouce += father.IntervalBetweenReproductions;
+            mother.NextAgeCanReprouce += mother.IntervalBetweenReproductions;
 
             _grid[(int)son.Mass.PosX, (int)son.Mass.PosY].Add(son);
 
             return son;
+        }
+
+        internal void EvaluateMoveEnergyCost(Animal animal)
+        {
+            // TODO Evaluate according to movement speed and weight?
+            animal.Energy -= StartingValues.EnergyCostForMoving;
+        }
+
+        internal void EvaluateAttackEnergyCost(Animal animal)
+        {
+            // TODO Evaluate according to weight or something else?
+            animal.Energy -= StartingValues.EnergyCostForAttacking;
         }
 
         internal void Kill(Animal deadAnimal)
@@ -160,7 +197,7 @@ namespace Darwinizator
 
         internal bool NeedsToReproduce(Animal animal)
         {
-            return animal.Age >= animal.NextYearCanReprouce;
+            return animal.Age >= animal.NextAgeCanReprouce;
         }
 
         internal bool RandomMove(Animal who, TimeSpan elapsed)
@@ -233,6 +270,25 @@ namespace Darwinizator
             }
         }
 
+        internal void Eat(Animal animal, Vegetable vegetable)
+        {
+            animal.Energy += StartingValues.EnergyGainForEatingPlants;
+            if (animal.Energy > animal.MaximumEnergy)
+                animal.Energy = animal.MaximumEnergy;
+
+            vegetable.IsEaten = true;
+        }
+
+        internal void Eat(Animal animal, Animal anotherAnimal)
+        {
+            animal.Energy += StartingValues.EnergyGainForEatingAnimals;
+            if (animal.Energy > animal.MaximumEnergy)
+                animal.Energy = animal.MaximumEnergy;
+
+            // AnotherAnimal disappear
+            anotherAnimal.Health = -10;
+        }
+
         internal bool CouldGoOnAnotherAnimal(Animal animal, float newPosX, float newPosY)
         {
             var newMass = new Mass()
@@ -255,7 +311,7 @@ namespace Darwinizator
             return false;
         }
 
-        internal bool IsEnoughCloseToInteract(Animal who, Animal withWho)
+        internal bool IsEnoughCloseToInteract(Animal who, IWithMass withWho)
         {
             return who.Mass.Intersects(withWho.Mass);
         }
@@ -267,7 +323,9 @@ namespace Darwinizator
 
         internal bool IsDead(Animal animal)
         {
-            return animal.Age >= animal.Lifetime || animal.Health <= 0;
+            return animal.Age >= animal.Lifetime
+                || animal.Health <= 0
+                || animal.Energy <= 0;
         }
 
         internal Animal AllayInLineOfSight(Animal animal, bool? searchForReproduction = null)

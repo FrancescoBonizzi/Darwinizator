@@ -7,9 +7,6 @@
         public int Width { get; set; }
         public int Height { get; set; }
 
-        // TODO posso usarlo per stabilire un costo alle azioni
-        public int Weight { get; set; }
-
         public float Left => PosX;
         public float Right => PosX + Width;
         public float Top => PosY;

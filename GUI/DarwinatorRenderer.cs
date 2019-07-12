@@ -83,6 +83,13 @@ namespace GUI
 
             _spriteBatch.Begin();
 
+            foreach(var veg in _simulator.Vegetables)
+            {
+                _spriteBatch.DrawRectangle(
+                    veg.Mass.ToXnaRectangle(),
+                    Color.ForestGreen);
+            }
+
             foreach (var specie in _simulator.Population)
             {
                 foreach (var animal in specie.Value)
@@ -93,7 +100,6 @@ namespace GUI
 
                     if (_debugMode)
                     {
-                        // TODO fai hover
                         _spriteBatch.DrawString(
                             _font,
                             animal.Name,

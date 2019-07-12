@@ -25,11 +25,16 @@ namespace Darwinizator
             WorldYSize = worldYSize;
 
             _generator = new Generator(WorldXSize, WorldYSize);
-            Population = _generator.InitializePopulation(populationPerSpecie: 35);
 
-          //  Vegetables = _generator.InitializeVegetables();
+            Population = _generator.InitializePopulation(StartingValues.PopulationPerSpecie);
+            Vegetables = _generator.SpawnVegetables(StartingValues.NumberOfVegetables);
 
-            _evaluator = new Evaluator(_generator, Population, WorldXSize, WorldYSize);
+            _evaluator = new Evaluator(
+                _generator,
+                Population,
+                Vegetables,
+                WorldXSize,
+                WorldYSize);
         }
 
         public void Update(TimeSpan elapsed)
@@ -47,68 +52,91 @@ namespace Darwinizator
                     // * Movement
                     bool moved = false;
 
-                    // This is the difference between Aggressive and Defensive animals
-                    var enemyNearby = _evaluator.FirstEnemyInLineOfSight(animal);
-                    if (enemyNearby != null)
+                    // Hunger is always the priority
+                    if (animal.IsHungry)
                     {
-                        if (animal.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Defensive)
+                        if (animal.Diet == Diet.Herbivore)
                         {
-                            // A defensive runs away
-                            moved = _evaluator.Flee(animal, enemyNearby, elapsed);
-                        }
-                        else if (animal.SocialIstinctToOtherSpecies == SocialIstinctToOtherSpecies.Aggressive)
-                        {
-                            // An aggressive approaches to attack
-                            moved = _evaluator.Approach(animal, enemyNearby, elapsed);
-                        }
-                    }
-
-                    if (!moved)
-                    {
-                        // Every animal tends to stay in group with his specie
-                        var allyNearby = _evaluator.AllayInLineOfSight(animal);
-                        if (allyNearby != null)
-                        {
-                            moved = _evaluator.Approach(animal, allyNearby, elapsed);
-                        }
-                    }
-
-                    // If it is in love, find a partner
-                    if (_evaluator.NeedsToReproduce(animal))
-                    {
-                        var otherGenderAllyNearbyThatNeedsToReproduce = _evaluator.AllayInLineOfSight(animal, true);
-                        if (otherGenderAllyNearbyThatNeedsToReproduce != null)
-                        {
-                            moved = _evaluator.Approach(animal, otherGenderAllyNearbyThatNeedsToReproduce, elapsed);
-
-                            if (_evaluator.IsEnoughCloseToInteract(animal, otherGenderAllyNearbyThatNeedsToReproduce))
+                            var vegetableNearby = _evaluator.FirstVegetableInLineOfSight(animal);
+                            if (vegetableNearby != null)
                             {
-                                var father = animal.Gender == Gender.Male ? animal : otherGenderAllyNearbyThatNeedsToReproduce;
-                                var mother = animal.Gender == Gender.Female ? animal : otherGenderAllyNearbyThatNeedsToReproduce;
+                                moved = _evaluator.Approach(animal, vegetableNearby, elapsed);
 
-                                var newAnimal = _evaluator.Copulate(father: father, mother: mother);
-                                newGeneration.Add(newAnimal);
+                                if (_evaluator.IsEnoughCloseToInteract(animal, vegetableNearby))
+                                {
+                                    _evaluator.Eat(animal, vegetableNearby);
+                                }
+                            }
+                        }
+                        else if (animal.Diet == Diet.Carnivorous)
+                        {
+                            var enemyNearby = _evaluator.FirstEnemyInLineOfSight(animal);
+                            if (enemyNearby != null)
+                            {
+                                moved = _evaluator.Approach(animal, enemyNearby, elapsed);
+
+                                if (_evaluator.IsEnoughCloseToInteract(animal, enemyNearby))
+                                {
+                                    _evaluator.Attack(animal, enemyNearby);
+                                    _evaluator.EvaluateAttackEnergyCost(animal);
+
+                                    if (_evaluator.IsDead(enemyNearby))
+                                    {
+                                        _evaluator.Eat(animal, enemyNearby);
+                                    }
+
+                                    if (_evaluator.IsDead(animal))
+                                    {
+                                        continue;
+                                    }
+                                }
                             }
                         }
                     }
-
-                    // * Attack
-                    if (enemyNearby != null)
+                    else
                     {
-                        if (_evaluator.IsEnoughCloseToInteract(animal, enemyNearby))
+                        if (animal.Diet == Diet.Herbivore)
                         {
-                            _evaluator.Attack(animal, enemyNearby);
-                            if (_evaluator.IsDead(animal))
+                            var enemyNearby = _evaluator.FirstEnemyInLineOfSight(animal);
+                            if (enemyNearby != null)
                             {
-                                continue;
+                                moved = _evaluator.Flee(animal, enemyNearby, elapsed);
+                            }
+                        }
+
+                        // If it is in love, find a partner
+                        if (!moved && _evaluator.NeedsToReproduce(animal))
+                        {
+                            var otherGenderAllyNearbyThatNeedsToReproduce = _evaluator.AllayInLineOfSight(animal, true);
+                            if (otherGenderAllyNearbyThatNeedsToReproduce != null)
+                            {
+                                moved = _evaluator.Approach(animal, otherGenderAllyNearbyThatNeedsToReproduce, elapsed);
+
+                                if (_evaluator.IsEnoughCloseToInteract(animal, otherGenderAllyNearbyThatNeedsToReproduce))
+                                {
+                                    var father = animal.Gender == Gender.Male ? animal : otherGenderAllyNearbyThatNeedsToReproduce;
+                                    var mother = animal.Gender == Gender.Female ? animal : otherGenderAllyNearbyThatNeedsToReproduce;
+
+                                    var newAnimal = _evaluator.Copulate(father: father, mother: mother);
+                                    newGeneration.Add(newAnimal);
+                                }
+                            }
+                        }
+
+                        if (!moved)
+                        {
+                            // Every animal tends to stay in group with his specie
+                            var allyNearby = _evaluator.AllayInLineOfSight(animal);
+                            if (allyNearby != null)
+                            {
+                                moved = _evaluator.Approach(animal, allyNearby, elapsed);
                             }
                         }
                     }
 
                     // Move randomly to feel alive
-                    bool randomMoved = moved;
-                    randomMoved = _evaluator.RandomMove(animal, elapsed);
-
+                    _evaluator.RandomMove(animal, elapsed);
+                    _evaluator.EvaluateMoveEnergyCost(animal);
                     _evaluator.EvaluateAge(animal);
                 }
 
@@ -123,6 +151,11 @@ namespace Darwinizator
 
                 specie.Value.AddRange(newGeneration);
             }
+
+            Vegetables.RemoveAll(v => v.IsEaten);
+
+            // TODO possa farlo anche a tempo
+            Vegetables.AddRange(_generator.SpawnVegetables(StartingValues.NumberOfVegetables - Vegetables.Count));
         }
 
     }
