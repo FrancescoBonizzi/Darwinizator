@@ -11,7 +11,7 @@ namespace GUI
             const int simulationWorldWidth = 500;
             const int simulationWorldHeight = 500;
 
-            var simulator = new Simulator(simulationWorldWidth, simulationWorldHeight);
+            var simulator = new Simulator(simulationWorldWidth, simulationWorldHeight, TimeSpan.FromSeconds(1));
 
             using (var infosForm = new Infos(simulator))
             {

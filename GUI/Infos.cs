@@ -12,9 +12,10 @@ namespace GUI
         {
             InitializeComponent();
             _simulator = simulator;
+            _simulator.DataRefresh += _simulator_DataRefresh;
         }
 
-        private void TimerRefresh_Tick(object sender, System.EventArgs e)
+        private void _simulator_DataRefresh(object sender, EventArgs e)
         {
             txtGeneralInfos.Clear();
             txtCarnivorous.Clear();

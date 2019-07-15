@@ -9,21 +9,25 @@ namespace Darwinizator
         public int WorldXSize { get; }
         public int WorldYSize { get; }
 
-        private readonly Generator _generator;
-
         public int[,] World { get; set; }
         public Dictionary<string, List<Animal>> Population { get; set; }
         public List<Vegetable> Vegetables { get; set; }
 
-        private TimeSpan _elapsedSinceLastVegetableGeneration;
-
-        private readonly Evaluator _evaluator;
         public int DeadCarnivorousNumber { get; private set; } = 0;
         public int DeadHerbivoreNumber { get; private set; } = 0;
 
+        public event EventHandler DataRefresh;
+
+        private TimeSpan _elapsedSinceLastVegetableGeneration;
+        private TimeSpan _elapsedSinceLastDataRefreshTime;
+        private readonly TimeSpan _intervalForRaiseDataRefreshTime;
+        private readonly Generator _generator;
+        private readonly Evaluator _evaluator;
+
         public Simulator(
             int worldXSize,
-            int worldYSize)
+            int worldYSize,
+            TimeSpan raiseDataRefreshTime)
         {
             WorldXSize = worldXSize;
             WorldYSize = worldYSize;
@@ -41,11 +45,14 @@ namespace Darwinizator
                 WorldYSize);
 
             _elapsedSinceLastVegetableGeneration = TimeSpan.Zero;
+            _elapsedSinceLastDataRefreshTime = TimeSpan.Zero;
+            _intervalForRaiseDataRefreshTime = raiseDataRefreshTime;
         }
 
         public void Update(TimeSpan elapsed)
         {
             _elapsedSinceLastVegetableGeneration += elapsed;
+            _elapsedSinceLastDataRefreshTime += elapsed;
 
             foreach (var specie in Population)
             {
@@ -176,6 +183,11 @@ namespace Darwinizator
                 _elapsedSinceLastVegetableGeneration = TimeSpan.Zero;
             }
 
+            if (_elapsedSinceLastDataRefreshTime > _intervalForRaiseDataRefreshTime)
+            {
+                DataRefresh?.Invoke(this, EventArgs.Empty);
+                _elapsedSinceLastDataRefreshTime = TimeSpan.Zero;
+            }
         }
 
     }
