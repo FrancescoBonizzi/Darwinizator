@@ -36,6 +36,9 @@
             this.label3 = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.txtGeneralInfos = new System.Windows.Forms.RichTextBox();
+            this.flagPause = new System.Windows.Forms.CheckBox();
+            this.flagDebug = new System.Windows.Forms.CheckBox();
+            this.flagRendering = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -108,12 +111,60 @@
             this.txtGeneralInfos.TabIndex = 10;
             this.txtGeneralInfos.Text = "";
             // 
+            // flagPause
+            // 
+            this.flagPause.Appearance = System.Windows.Forms.Appearance.Button;
+            this.flagPause.AutoSize = true;
+            this.flagPause.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.flagPause.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.flagPause.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.flagPause.Location = new System.Drawing.Point(352, 138);
+            this.flagPause.Name = "flagPause";
+            this.flagPause.Size = new System.Drawing.Size(52, 23);
+            this.flagPause.TabIndex = 13;
+            this.flagPause.Text = "Pause";
+            this.flagPause.UseVisualStyleBackColor = true;
+            this.flagPause.CheckedChanged += new System.EventHandler(this.FlagPause_CheckedChanged);
+            // 
+            // flagDebug
+            // 
+            this.flagDebug.Appearance = System.Windows.Forms.Appearance.Button;
+            this.flagDebug.AutoSize = true;
+            this.flagDebug.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.flagDebug.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.flagDebug.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.flagDebug.Location = new System.Drawing.Point(410, 138);
+            this.flagDebug.Name = "flagDebug";
+            this.flagDebug.Size = new System.Drawing.Size(54, 23);
+            this.flagDebug.TabIndex = 14;
+            this.flagDebug.Text = "Debug";
+            this.flagDebug.UseVisualStyleBackColor = true;
+            this.flagDebug.CheckedChanged += new System.EventHandler(this.FlagDebug_CheckedChanged);
+            // 
+            // flagRendering
+            // 
+            this.flagRendering.Appearance = System.Windows.Forms.Appearance.Button;
+            this.flagRendering.AutoSize = true;
+            this.flagRendering.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.flagRendering.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.flagRendering.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.flagRendering.Location = new System.Drawing.Point(470, 138);
+            this.flagRendering.Name = "flagRendering";
+            this.flagRendering.Size = new System.Drawing.Size(75, 23);
+            this.flagRendering.TabIndex = 15;
+            this.flagRendering.Text = "Rendering";
+            this.flagRendering.UseVisualStyleBackColor = true;
+            this.flagRendering.CheckedChanged += new System.EventHandler(this.FlagRendering_CheckedChanged);
+            // 
             // Infos
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(129)))), ((int)(((byte)(196)))), ((int)(((byte)(65)))));
             this.ClientSize = new System.Drawing.Size(567, 561);
+            this.Controls.Add(this.flagRendering);
+            this.Controls.Add(this.flagDebug);
+            this.Controls.Add(this.flagPause);
             this.Controls.Add(this.txtGeneralInfos);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.pictureBox1);
@@ -138,5 +189,8 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.RichTextBox txtGeneralInfos;
+        private System.Windows.Forms.CheckBox flagPause;
+        private System.Windows.Forms.CheckBox flagDebug;
+        private System.Windows.Forms.CheckBox flagRendering;
     }
 }

@@ -15,11 +15,9 @@ namespace GUI
         private readonly Simulator _simulator;
         private readonly HexToColorConverter _hexToColorConverter;
 
-        private bool _debugMode = false;
-        private bool _paused = false;
-        private bool _rendering = true;
-
-        private KeyboardState _lastKey;
+        public bool DebugMode { get; set; } = false;
+        public bool Paused { get; set; } = false;
+        public bool Rendering { get; set; } = true;
 
         public DarwinatorRenderer(Simulator simulator)
         {
@@ -46,17 +44,7 @@ namespace GUI
 
         protected override void Update(GameTime gameTime)
         {
-            var keyboardState = Keyboard.GetState();
-            if (keyboardState.IsKeyUp(Keys.P) && _lastKey.IsKeyDown(Keys.P))
-                _paused = !_paused;
-            else if (keyboardState.IsKeyUp(Keys.R) && _lastKey.IsKeyDown(Keys.R))
-                _rendering = !_rendering;
-            else if (keyboardState.IsKeyUp(Keys.D) && _lastKey.IsKeyDown(Keys.D))
-                _debugMode = !_debugMode;
-
-            _lastKey = keyboardState;
-
-            if (_paused)
+            if (Paused)
                 return;
 
             _simulator.Update(gameTime.ElapsedGameTime);
@@ -67,15 +55,13 @@ namespace GUI
         {
             GraphicsDevice.Clear(Color.Black);
 
-            if (!_rendering)
+            if (!Rendering)
             {
                 _spriteBatch.Begin();
                 _spriteBatch.DrawString(
                     _font,
-                    "Rendering disabled " +
-                    Environment.NewLine +
-                    "Press 'R' to switch",
-                    new Vector2(100, 100),
+                    "Rendering disabled",
+                    new Vector2(20, 20),
                     Color.Yellow);
                 _spriteBatch.End();
                 return;
@@ -98,7 +84,7 @@ namespace GUI
                         rectangleDefinition: animal.Mass.ToXnaRectangle(),
                         fillColor: _hexToColorConverter.CalculateColor(animal));
 
-                    if (_debugMode)
+                    if (DebugMode)
                     {
                         _spriteBatch.DrawString(
                             _font,

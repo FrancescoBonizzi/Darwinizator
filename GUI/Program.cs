@@ -13,15 +13,16 @@ namespace GUI
 
             var simulator = new Simulator(simulationWorldWidth, simulationWorldHeight, TimeSpan.FromSeconds(1));
 
-            using (var infosForm = new Infos(simulator))
-            {
-                infosForm.Show();
 
-                using (var game = new DarwinatorRenderer(simulator))
+            using (var game = new DarwinatorRenderer(simulator))
+            {
+                using (var infosForm = new Infos(simulator, game))
                 {
+                    infosForm.Show();
                     game.Run();
                 }
             }
         }
     }
 }
+

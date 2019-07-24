@@ -8,14 +8,21 @@ namespace GUI
     public partial class Infos : Form
     {
         private readonly Simulator _simulator;
+        private readonly DarwinatorRenderer _darwinatorRenderer;
         private int _carnivorousNumberOfDeathsPreviousRefresh = 0;
         private int _herbivoreNumberOfDeathsSincePreviousRefresh = 0;
 
-        public Infos(Simulator simulator)
+        public Infos(Simulator simulator, DarwinatorRenderer darwinatorRenderer)
         {
             InitializeComponent();
             _simulator = simulator;
             _simulator.DataRefresh += _simulator_DataRefresh;
+
+            _darwinatorRenderer = darwinatorRenderer;
+
+            flagDebug.Checked = _darwinatorRenderer.DebugMode;
+            flagRendering.Checked = _darwinatorRenderer.Rendering;
+            flagPause.Checked = _darwinatorRenderer.Paused;
         }
 
         private void _simulator_DataRefresh(object sender, EventArgs e)
@@ -91,6 +98,21 @@ namespace GUI
             txtHerbivore.AppendText(Environment.NewLine + $"Longest generation: {herbivoreLongestGeneration}");
             txtHerbivore.AppendText(Environment.NewLine + $"Deads/minute: {herbivoreNumberOfDeathsSinceLastRefresh}");
 
+        }
+
+        private void FlagPause_CheckedChanged(object sender, EventArgs e)
+        {
+            _darwinatorRenderer.Paused = (sender as CheckBox).Checked;
+        }
+
+        private void FlagDebug_CheckedChanged(object sender, EventArgs e)
+        {
+            _darwinatorRenderer.DebugMode = (sender as CheckBox).Checked;
+        }
+
+        private void FlagRendering_CheckedChanged(object sender, EventArgs e)
+        {
+            _darwinatorRenderer.Rendering = (sender as CheckBox).Checked;
         }
     }
 }
