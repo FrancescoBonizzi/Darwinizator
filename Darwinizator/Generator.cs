@@ -10,8 +10,10 @@ namespace Darwinizator
 
         private readonly int _worldXSize;
         private readonly int _worldYSize;
-
+        
         private int _animalSequenceNumber = 0;
+
+        private readonly Evolutionator _evolutionator;
 
         public Generator(
             int worldXSize,
@@ -19,6 +21,7 @@ namespace Darwinizator
         {
             _worldXSize = worldXSize;
             _worldYSize = worldYSize;
+            _evolutionator = new Evolutionator();
         }
 
         public Dictionary<string, List<Animal>> InitializePopulation(int populationPerSpecie)
@@ -47,7 +50,7 @@ namespace Darwinizator
 
                     animals.Add(GenerateAnimal(
                         specieName: specieName,
-                        socialIstinctToOtherSpecies: socialInstinct,
+                        diet: socialInstinct,
                         maleColor: "ff0000",
                         femaleColor: "ff0066",
                         X,
@@ -69,7 +72,7 @@ namespace Darwinizator
 
                     animals.Add(GenerateAnimal(
                         specieName: specieName,
-                        socialIstinctToOtherSpecies: socialInstinct,
+                        diet: socialInstinct,
                         maleColor: "006eff",
                         femaleColor: "00fff2",
                         X,
@@ -134,18 +137,22 @@ namespace Darwinizator
 
             animal.Father = father;
             animal.Mother = mother;
-
+            
             // TODO Come calcolo il numero di generazione? Sommo padre, o madre, o entrambi +1?
             animal.IntervalBetweenReproductions = mother.IntervalBetweenReproductions;
 
-            // TODO randomizza caratteristiche di specie con una funzione che parte dai genitori
+            // Randomization of animal traits based on its parents
+            _evolutionator.RandomizeTraits(father, mother, animal);
+
+            // When an animal borns, it is hungry
+            animal.Energy = animal.MaximumEnergy - (animal.MaximumEnergy / 3);
 
             return animal;
         }
 
         public Animal GenerateAnimal(
             string specieName,
-            Diet socialIstinctToOtherSpecies,
+            Diet diet,
             string maleColor,
             string femaleColor,
             int posX,
@@ -160,13 +167,14 @@ namespace Darwinizator
             {
                 SpecieName = specieName,
                 Color = color,
-                Diet = socialIstinctToOtherSpecies,
+                Diet = diet,
                 Gender = gender,
                 Age = 0,
                 Father = null,
                 Mother = null,
-                NextAgeCanReprouce = StartingValues.NextAgeCanReproduce,
+                NextAgeCanReproduce = StartingValues.IntervalBetweenReproducions,
                 Energy = StartingValues.MaximumEnergy,
+                EnergyGainForEating = diet == Diet.Herbivore ? StartingValues.EnergyGainForEatingPlants : StartingValues.EnergyGainForEatingAnimals,
 
                 Lifetime = StartingValues.Lifetime,
                 MovementSpeed = StartingValues.MovementSpeed,

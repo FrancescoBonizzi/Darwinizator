@@ -9,21 +9,21 @@
         public float Age { get; set; }
         public Animal Father { get; set; }
         public Animal Mother { get; set; }
-        public int NextAgeCanReprouce { get; set; }
+        public float NextAgeCanReproduce { get; set; }
         public Mass Mass { get; set; }
         public string Name { get; set; }
         public float Energy { get; set; }
 
-        // Survival/heritable charateristics
+        // Traits/survival/heritable charateristics
         public float Lifetime { get; set; }
-        public int MovementSpeed { get; set; }
-        public int SeeDistance { get; set; }
-        public int AttackPower { get; set; }
-        public int DefensePower { get; set; }
-        public int IntervalBetweenReproductions { get; set; }
-        public int MaximumHealth { get; set; }
-        public int MaximumEnergy { get; set; }
-        public int EnergyAmountToSearchForFood { get; set; }
+        public float MovementSpeed { get; set; }
+        public float SeeDistance { get; set; }
+        public float AttackPower { get; set; }
+        public float DefensePower { get; set; }
+        public float IntervalBetweenReproductions { get; set; }
+        public float MaximumEnergy { get; set; }
+        public float EnergyAmountToSearchForFood { get; set; }
+        public float EnergyGainForEating { get; set; }
 
         public bool IsHungry => Energy <= EnergyAmountToSearchForFood;
     }

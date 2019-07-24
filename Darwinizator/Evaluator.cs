@@ -170,8 +170,8 @@ namespace Darwinizator
                 throw new Exception("Cannot copulate between different species");
 
             var son = _generator.GenerateAnimal(father: father, mother: mother);
-            father.NextAgeCanReprouce += father.IntervalBetweenReproductions;
-            mother.NextAgeCanReprouce += mother.IntervalBetweenReproductions;
+            father.NextAgeCanReproduce += father.IntervalBetweenReproductions;
+            mother.NextAgeCanReproduce += mother.IntervalBetweenReproductions;
 
             _grid[(int)son.Mass.PosX, (int)son.Mass.PosY].Add(son);
 
@@ -197,7 +197,7 @@ namespace Darwinizator
 
         internal bool NeedsToReproduce(Animal animal)
         {
-            return animal.Age >= animal.NextAgeCanReprouce;
+            return animal.Age >= animal.NextAgeCanReproduce;
         }
 
         internal bool RandomMove(Animal who, TimeSpan elapsed)
@@ -275,7 +275,7 @@ namespace Darwinizator
 
         internal void Eat(Animal animal, Vegetable vegetable)
         {
-            animal.Energy += StartingValues.EnergyGainForEatingPlants;
+            animal.Energy += animal.EnergyGainForEating;
             if (animal.Energy > animal.MaximumEnergy)
                 animal.Energy = animal.MaximumEnergy;
 
@@ -284,7 +284,7 @@ namespace Darwinizator
 
         internal void Eat(Animal animal, Animal anotherAnimal)
         {
-            animal.Energy += StartingValues.EnergyGainForEatingAnimals;
+            animal.Energy += animal.EnergyGainForEating;
             if (animal.Energy > animal.MaximumEnergy)
                 animal.Energy = animal.MaximumEnergy;
 
