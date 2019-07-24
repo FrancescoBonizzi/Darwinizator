@@ -10,7 +10,7 @@ namespace Darwinizator
 
         private readonly int _worldXSize;
         private readonly int _worldYSize;
-        
+
         private int _animalSequenceNumber = 0;
 
         private readonly Evolutionator _evolutionator;
@@ -137,9 +137,9 @@ namespace Darwinizator
 
             animal.Father = father;
             animal.Mother = mother;
-            
-            // TODO Come calcolo il numero di generazione? Sommo padre, o madre, o entrambi +1?
+
             animal.IntervalBetweenReproductions = mother.IntervalBetweenReproductions;
+            animal.GenerationAge = Math.Max(father.GenerationAge, mother.GenerationAge) + 1;
 
             // Randomization of animal traits based on its parents
             _evolutionator.RandomizeTraits(father, mother, animal);
@@ -175,6 +175,8 @@ namespace Darwinizator
                 NextAgeCanReproduce = StartingValues.IntervalBetweenReproducions,
                 Energy = StartingValues.MaximumEnergy,
                 EnergyGainForEating = diet == Diet.Herbivore ? StartingValues.EnergyGainForEatingPlants : StartingValues.EnergyGainForEatingAnimals,
+
+                GenerationAge = 1,
 
                 Lifetime = StartingValues.Lifetime,
                 MovementSpeed = StartingValues.MovementSpeed,

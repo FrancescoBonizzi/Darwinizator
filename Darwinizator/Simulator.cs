@@ -1,6 +1,7 @@
 ﻿using Darwinizator.Domain;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Darwinizator
 {
@@ -13,8 +14,10 @@ namespace Darwinizator
         public Dictionary<string, List<Animal>> Population { get; set; }
         public List<Vegetable> Vegetables { get; set; }
 
-        public int DeadCarnivorousNumber { get; private set; } = 0;
-        public int DeadHerbivoreNumber { get; private set; } = 0;
+        public int TotalBornCarnivorousNumber { get; private set; } = 0;
+        public int TotalBornHerbivoreNumber { get; private set; } = 0;
+        public int TotalDeadCarnivorousNumber { get; private set; } = 0;
+        public int TotalDeadHerbivoreNumber { get; private set; } = 0;
 
         public event EventHandler DataRefresh;
 
@@ -36,6 +39,9 @@ namespace Darwinizator
 
             Population = _generator.InitializePopulation(StartingValues.PopulationPerSpecie);
             Vegetables = _generator.SpawnVegetables(StartingValues.NumberOfVegetables);
+
+            TotalBornCarnivorousNumber = Population[nameof(Diet.Carnivorous)].Count;
+            TotalBornHerbivoreNumber = Population[nameof(Diet.Herbivore)].Count;
 
             _evaluator = new Evaluator(
                 _generator,
@@ -133,6 +139,9 @@ namespace Darwinizator
 
                                     var newAnimal = _evaluator.Copulate(father: father, mother: mother);
                                     newGeneration.Add(newAnimal);
+                                    if (animal.Diet == Diet.Carnivorous)
+                                        TotalBornCarnivorousNumber++;
+                                    else TotalBornHerbivoreNumber++;
                                 }
                             }
                         }
@@ -159,8 +168,8 @@ namespace Darwinizator
                     if (_evaluator.IsDead(specie.Value[a]))
                     {
                         if (specie.Value[a].Diet == Diet.Carnivorous)
-                            DeadCarnivorousNumber++;
-                        else DeadHerbivoreNumber++;
+                            TotalDeadCarnivorousNumber++;
+                        else TotalDeadHerbivoreNumber++;
 
                         _evaluator.Kill(specie.Value[a]);
                          specie.Value.RemoveAt(a);

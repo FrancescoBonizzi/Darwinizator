@@ -13,6 +13,7 @@
         public Mass Mass { get; set; }
         public string Name { get; set; }
         public float Energy { get; set; }
+        public int GenerationAge { get; set; }
 
         // Traits/survival/heritable charateristics
         public float Lifetime { get; set; }
