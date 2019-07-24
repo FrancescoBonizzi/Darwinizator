@@ -13,7 +13,7 @@ namespace Darwinizator
         public const int IntervalBetweenReproducions = 5;
         public const int EnergyAmountToStartSearchingForFood = 50;
         public const int MaximumEnergy = 100;
-        public const int Lifetime = 20;
+        public const int Lifetime = 30;
         public const int MovementSpeed = 100;
         public const int SeeDistance = 10000;
         public const int AttackPower = 5;

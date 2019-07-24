@@ -8,8 +8,8 @@ namespace GUI
     public partial class Infos : Form
     {
         private readonly Simulator _simulator;
-        private int _carnivorousNumberOfDeathsSinceLastRefresh = 0;
-        private int _herbivoreNumberOfDeathsSinceLastRefresh = 0;
+        private int _carnivorousNumberOfDeathsPreviousRefresh = 0;
+        private int _herbivoreNumberOfDeathsSincePreviousRefresh = 0;
 
         public Infos(Simulator simulator)
         {
@@ -65,28 +65,31 @@ namespace GUI
                 }
             }
 
-            _carnivorousNumberOfDeathsSinceLastRefresh = _simulator.TotalDeadCarnivorousNumber - _carnivorousNumberOfDeathsSinceLastRefresh;
-            _herbivoreNumberOfDeathsSinceLastRefresh = _simulator.TotalDeadHerbivoreNumber - _herbivoreNumberOfDeathsSinceLastRefresh;
+            int carnivorousNumberOfDeathsSinceLastRefresh = _simulator.TotalDeadCarnivorousNumber - _carnivorousNumberOfDeathsPreviousRefresh;
+            int herbivoreNumberOfDeathsSinceLastRefresh = _simulator.TotalDeadHerbivoreNumber - _herbivoreNumberOfDeathsSincePreviousRefresh;
+
+            _carnivorousNumberOfDeathsPreviousRefresh = _simulator.TotalDeadCarnivorousNumber;
+            _herbivoreNumberOfDeathsSincePreviousRefresh = _simulator.TotalDeadHerbivoreNumber;
 
             txtGeneralInfos.AppendText($"Total ever lived animals: {_simulator.TotalBornHerbivoreNumber + _simulator.TotalBornCarnivorousNumber}");
             txtGeneralInfos.AppendText(Environment.NewLine + $"Total alive population: {carnivorousAlive + herbivoreAlive}");
             txtGeneralInfos.AppendText(Environment.NewLine + $"Total vegetables: {_simulator.Vegetables.Count}");
             txtGeneralInfos.AppendText(Environment.NewLine + $"Total deads: {_simulator.TotalDeadCarnivorousNumber + _simulator.TotalDeadHerbivoreNumber}");
-            txtGeneralInfos.AppendText(Environment.NewLine + $"Total deads/minute: {_carnivorousNumberOfDeathsSinceLastRefresh + _herbivoreNumberOfDeathsSinceLastRefresh}");
+            txtGeneralInfos.AppendText(Environment.NewLine + $"Total deads/minute: {carnivorousNumberOfDeathsSinceLastRefresh + herbivoreNumberOfDeathsSinceLastRefresh}");
 
             txtCarnivorous.AppendText($"Ever lived: {_simulator.TotalBornCarnivorousNumber}");
             txtCarnivorous.AppendText(Environment.NewLine + $"Alive: {carnivorousAlive}");
             txtCarnivorous.AppendText(Environment.NewLine + $"Hungry: {carnivorousHungry}");
             txtCarnivorous.AppendText(Environment.NewLine + $"Deads: {_simulator.TotalDeadCarnivorousNumber}");
             txtCarnivorous.AppendText(Environment.NewLine + $"Longest generation: {carnivorousLongestGeneration}");
-            txtCarnivorous.AppendText(Environment.NewLine + $"Deads/minute: {_carnivorousNumberOfDeathsSinceLastRefresh}");
+            txtCarnivorous.AppendText(Environment.NewLine + $"Deads/minute: {carnivorousNumberOfDeathsSinceLastRefresh}");
 
             txtHerbivore.AppendText($"Ever lived: {_simulator.TotalBornHerbivoreNumber}");
             txtHerbivore.AppendText(Environment.NewLine + $"Alive: {herbivoreAlive}");
             txtHerbivore.AppendText(Environment.NewLine + $"Hungry: {herbivoreHungry}");
             txtHerbivore.AppendText(Environment.NewLine + $"Deads: {_simulator.TotalDeadHerbivoreNumber}");
             txtHerbivore.AppendText(Environment.NewLine + $"Longest generation: {herbivoreLongestGeneration}");
-            txtHerbivore.AppendText(Environment.NewLine + $"Deads/minute: {_herbivoreNumberOfDeathsSinceLastRefresh}");
+            txtHerbivore.AppendText(Environment.NewLine + $"Deads/minute: {herbivoreNumberOfDeathsSinceLastRefresh}");
 
         }
     }
