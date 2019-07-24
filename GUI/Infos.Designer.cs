@@ -1,6 +1,6 @@
 ﻿namespace GUI
 {
-    partial class Infos
+    partial class GetEvolution
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Infos));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GetEvolution));
             this.label2 = new System.Windows.Forms.Label();
             this.txtHerbivore = new System.Windows.Forms.RichTextBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -39,6 +39,10 @@
             this.flagPause = new System.Windows.Forms.CheckBox();
             this.flagDebug = new System.Windows.Forms.CheckBox();
             this.flagRendering = new System.Windows.Forms.CheckBox();
+            this.chartCarnivorousEvolution = new LiveCharts.WinForms.CartesianChart();
+            this.chartHerbivoreEvolution = new LiveCharts.WinForms.CartesianChart();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -58,7 +62,7 @@
             this.txtHerbivore.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txtHerbivore.Location = new System.Drawing.Point(11, 332);
             this.txtHerbivore.Name = "txtHerbivore";
-            this.txtHerbivore.Size = new System.Drawing.Size(264, 208);
+            this.txtHerbivore.Size = new System.Drawing.Size(264, 161);
             this.txtHerbivore.TabIndex = 3;
             this.txtHerbivore.Text = "";
             // 
@@ -78,7 +82,7 @@
             this.txtCarnivorous.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txtCarnivorous.Location = new System.Drawing.Point(281, 332);
             this.txtCarnivorous.Name = "txtCarnivorous";
-            this.txtCarnivorous.Size = new System.Drawing.Size(264, 208);
+            this.txtCarnivorous.Size = new System.Drawing.Size(264, 161);
             this.txtCarnivorous.TabIndex = 5;
             this.txtCarnivorous.Text = "";
             // 
@@ -156,12 +160,56 @@
             this.flagRendering.UseVisualStyleBackColor = true;
             this.flagRendering.CheckedChanged += new System.EventHandler(this.FlagRendering_CheckedChanged);
             // 
+            // chartCarnivorousEvolution
+            // 
+            this.chartCarnivorousEvolution.BackColor = System.Drawing.Color.White;
+            this.chartCarnivorousEvolution.Location = new System.Drawing.Point(281, 546);
+            this.chartCarnivorousEvolution.Name = "chartCarnivorousEvolution";
+            this.chartCarnivorousEvolution.Size = new System.Drawing.Size(264, 227);
+            this.chartCarnivorousEvolution.TabIndex = 16;
+            this.chartCarnivorousEvolution.Text = "chartCarnivorousEvolution";
+            // 
+            // chartHerbivoreEvolution
+            // 
+            this.chartHerbivoreEvolution.BackColor = System.Drawing.Color.White;
+            this.chartHerbivoreEvolution.Location = new System.Drawing.Point(11, 546);
+            this.chartHerbivoreEvolution.Name = "chartHerbivoreEvolution";
+            this.chartHerbivoreEvolution.Size = new System.Drawing.Size(264, 227);
+            this.chartHerbivoreEvolution.TabIndex = 17;
+            this.chartHerbivoreEvolution.Text = "chartHerbivoreEvolution";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.ForeColor = System.Drawing.Color.White;
+            this.label4.Location = new System.Drawing.Point(12, 510);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(78, 21);
+            this.label4.TabIndex = 18;
+            this.label4.Text = "Evolution";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.ForeColor = System.Drawing.Color.Crimson;
+            this.label5.Location = new System.Drawing.Point(281, 510);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(78, 21);
+            this.label5.TabIndex = 19;
+            this.label5.Text = "Evolution";
+            // 
             // Infos
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(129)))), ((int)(((byte)(196)))), ((int)(((byte)(65)))));
-            this.ClientSize = new System.Drawing.Size(567, 561);
+            this.ClientSize = new System.Drawing.Size(567, 785);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.chartHerbivoreEvolution);
+            this.Controls.Add(this.chartCarnivorousEvolution);
             this.Controls.Add(this.flagRendering);
             this.Controls.Add(this.flagDebug);
             this.Controls.Add(this.flagPause);
@@ -192,5 +240,9 @@
         private System.Windows.Forms.CheckBox flagPause;
         private System.Windows.Forms.CheckBox flagDebug;
         private System.Windows.Forms.CheckBox flagRendering;
+        private LiveCharts.WinForms.CartesianChart chartCarnivorousEvolution;
+        private LiveCharts.WinForms.CartesianChart chartHerbivoreEvolution;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label5;
     }
 }

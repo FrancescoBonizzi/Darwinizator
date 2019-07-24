@@ -16,7 +16,7 @@ namespace GUI
 
             using (var game = new DarwinatorRenderer(simulator))
             {
-                using (var infosForm = new Infos(simulator, game))
+                using (var infosForm = new GetEvolution(simulator, game))
                 {
                     infosForm.Show();
                     game.Run();
